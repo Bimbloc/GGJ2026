@@ -2,30 +2,29 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <link rel="shortcut icon" href="./assets/rac.png" type="image/png" />
-    <meta name="viewport" content="width=device-width, initial-scale=2.0">
-    <link rel="stylesheet" href="./css/game.css">
-   <script src="./lib/phaser.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./style.css" />
+
+    <!-- Librerias -->
+    <script src="./src/script.js"></script>
+    <script src="./src/lib/phaser.js"></script>
 
     <title>¡GGJ 2026!</title>
 </head>
 
 <body>
-   
-    
+    <div style="font-family:Pacifico-Regular; position:absolute; left:-1000px; visibility:hidden;">.</div>
 
-    <h1 align="center">GAME</h1>
-
-    
-    <div id="player1Holder">
-     <script src="./src/game.js" type="module"></script>
-    
-    </div>   
-    
-    
-   
-    
+   <!-- Contenedor del juego -->
+    <div id="game">
+        <script src="./src/gameConfig.js" type="module"></script>
+    </div>
 </body>
 
 </html>
