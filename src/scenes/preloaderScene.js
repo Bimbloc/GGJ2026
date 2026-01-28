@@ -14,14 +14,35 @@ export default class PreloaderScene extends BaseScene {
     * Aqui se deben cargar el resto de assets como imagenes, videos o los archivos de localizacion
     */
     preload() {
-        this.load.image("test", "assets/favicon.png");
+        this.load.setPath("assets/");
+
+        this.load.image("test", "favicon.png");
+        this.load.image("shopBg", "bg/scenario.png");
+
+        let parts = ["eyes", "head", "mouth", "nose"];
+        let styles = ["edgy", "fancy", "funny", "girly", "ms", "nat", "safe"];
+        let variants = 1;
+
+        this.cosmetics = new Map();
+        for (let i = 1; i <= variants; i++) {
+            parts.forEach(part => {
+                this.cosmetics.set(part, new Set());
+                styles.forEach(style => {
+                    let id = `${part}_${style}_${i}`;
+                    this.cosmetics.get(part).add(id)
+                    this.load.image(`MaskParts/${id}`);            
+                });
+            });
+        }
     }
 
     create(params) {
         super.create(params);
 
         this.sceneManager.init(this);
-        this.sceneManager.changeScene("Test", null, true, false);
+        this.gameManager.goToMainMenu();
+
+        this.gameManager.blackboard.set("cosmetics", this.cosmetics);
     }
 
     /**

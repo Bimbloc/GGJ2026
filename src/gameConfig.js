@@ -1,5 +1,6 @@
 import PreloaderScene from "./scenes/preloaderScene.js";
 import Test from "./scenes/test.js";
+import Shop from "./scenes/shop.js";
 
 const MAX_W = 1200, MAX_H = 900, MIN_W = 400, MIN_H = 300;
 const CONFIG = {
@@ -12,7 +13,8 @@ const CONFIG = {
     // Nota: el orden de las escenas es relevante, y las que se encuentren antes en el array se renderizaran por debajo de las siguientes
     scene: [
         PreloaderScene,
-        Test
+        Test,
+        Shop
     ],
     autoFocus: true,
     // Desactivar que aparezca el menu de inspeccionar al hacer click derecho

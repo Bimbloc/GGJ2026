@@ -18,6 +18,10 @@ export default class GameManager extends Singleton {
     init() {
     }
 
+    goToMainMenu() {
+        this.sceneManager.changeScene("Shop", null, true, false);
+    }
+
     resetGame() {
         this.blackboard.clear();
         this.dispatcher.removeAll();
@@ -29,6 +33,6 @@ export default class GameManager extends Singleton {
     }
 
     startGame() {
-        
+
     }
 }
