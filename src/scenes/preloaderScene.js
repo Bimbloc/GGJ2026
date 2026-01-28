@@ -30,7 +30,7 @@ export default class PreloaderScene extends BaseScene {
                 styles.forEach(style => {
                     let id = `${part}_${style}_${i}`;
                     this.cosmetics.get(part).add(id)
-                    this.load.image(`MaskParts/${id}`);            
+                    this.load.image(`maskParts/${id}`);            
                 });
             });
         }
