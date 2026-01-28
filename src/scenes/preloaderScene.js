@@ -1,15 +1,34 @@
-import SceneManager from "../utils/sceneManager.js";
+import BaseScene from "./baseScene.js";
 
-export default class PreloaderScene extends Phaser.Scene {
+export default class PreloaderScene extends BaseScene {
     constructor() {
-        super({key: "PreloaderScene",});
+        super("PreloaderScene");
     }
 
     init() {
-        this.CANVAS_WIDTH = this.sys.game.canvas.width;
-        this.CANVAS_HEIGHT = this.sys.game.canvas.height;
+        super.init();
+        this.createLoadingBar()
+    }
 
-        this.DEFAULT_LOADING_BAR_CONFIG = {
+    /**
+    * Aqui se deben cargar el resto de assets como imagenes, videos o los archivos de localizacion
+    */
+    preload() {
+        this.load.image("test", "assets/favicon.png");
+    }
+
+    create(params) {
+        super.create(params);
+
+        this.sceneManager.init(this);
+        this.sceneManager.changeScene("Test", null, true, false);
+    }
+
+    /**
+    * Crea la barra de carga
+    */
+    createLoadingBar() {
+        const LOADING_BAR_CONFIG = {
             x: this.CANVAS_WIDTH / 2,
             y: this.CANVAS_HEIGHT / 2,
 
@@ -26,7 +45,7 @@ export default class PreloaderScene extends Phaser.Scene {
             textOffset: 70,
         };
 
-        this.DEFAULT_TEXT_CONFIG = {
+        const TEXT_CONFIG = {
             padding: 80,
 
             originX: 0.5,
@@ -39,23 +58,19 @@ export default class PreloaderScene extends Phaser.Scene {
                 fontFamily: "Pacifico-Regular"
             }
         }
-
-        this.createLoadingBar()
-    }
-
-    createLoadingBar() {
+        
         let progressBox = this.add.graphics();
         let progressBar = this.add.graphics();
 
-        let x = this.DEFAULT_LOADING_BAR_CONFIG.x;
-        let y = this.DEFAULT_LOADING_BAR_CONFIG.y;
-        let width = this.DEFAULT_LOADING_BAR_CONFIG.width;
-        let height = this.DEFAULT_LOADING_BAR_CONFIG.height;
-        let fillOffset = this.DEFAULT_LOADING_BAR_CONFIG.fillOffset;
-        let radius = Math.min(width, height) * this.DEFAULT_LOADING_BAR_CONFIG.radiusPercentage;
+        let x = LOADING_BAR_CONFIG.x;
+        let y = LOADING_BAR_CONFIG.y;
+        let width = LOADING_BAR_CONFIG.width;
+        let height = LOADING_BAR_CONFIG.height;
+        let fillOffset = LOADING_BAR_CONFIG.fillOffset;
+        let radius = Math.min(width, height) * LOADING_BAR_CONFIG.radiusPercentage;
 
-        progressBox.fillStyle(this.DEFAULT_LOADING_BAR_CONFIG.bgColor, 1).fillRoundedRect(x - width / 2, y - height / 2, width, height, radius)
-            .lineStyle(this.DEFAULT_LOADING_BAR_CONFIG.borderThickness, this.DEFAULT_LOADING_BAR_CONFIG.borderCol, 1)
+        progressBox.fillStyle(LOADING_BAR_CONFIG.bgColor, 1).fillRoundedRect(x - width / 2, y - height / 2, width, height, radius)
+            .lineStyle(LOADING_BAR_CONFIG.borderThickness, LOADING_BAR_CONFIG.borderCol, 1)
             .strokeRoundedRect(x - width / 2, y - height / 2, width, height, radius)
 
 
@@ -64,16 +79,16 @@ export default class PreloaderScene extends Phaser.Scene {
             if (value > 0) {
                 percentText.setText(parseInt(value * 100) + "%");
                 progressBar.clear();
-                progressBar.fillStyle(this.DEFAULT_LOADING_BAR_CONFIG.fillColor, 1);
+                progressBar.fillStyle(LOADING_BAR_CONFIG.fillColor, 1);
                 progressBar.fillRoundedRect(x - (width - fillOffset) / 2, y - (height - fillOffset) / 2, (width - fillOffset) * value, height - fillOffset, radius);
             }
         });
 
 
-        let style = this.DEFAULT_TEXT_CONFIG.style;
-        let originX = this.DEFAULT_TEXT_CONFIG.originX;
-        let originY = this.DEFAULT_TEXT_CONFIG.originY;
-        let textPadding = this.DEFAULT_TEXT_CONFIG.padding;
+        let style = TEXT_CONFIG.style;
+        let originX = TEXT_CONFIG.originX;
+        let originY = TEXT_CONFIG.originY;
+        let textPadding = TEXT_CONFIG.padding;
 
         let percentText = this.add.text(x, y, "=%", style).setOrigin(originX, originY);
         let loadingText = this.add.text(x, y - textPadding, "Loading...", style).setOrigin(originX, originY);
@@ -81,19 +96,8 @@ export default class PreloaderScene extends Phaser.Scene {
 
         // Cuando carga un archivo, muestra el nombre del archivo debajo de la barra
         this.load.on("fileprogress", function (file) {
-            // console.log(file.key);
             assetText.setText("Loading asset: " + file.key);
         });
     }
 
-    preload() {
-        this.load.image("test", "assets/favicon.png");
-    }
-
-    create() {
-        let sceneManager = SceneManager.create();
-        sceneManager.init(this);
-
-        sceneManager.changeScene("Test", null, true, false);
-    }
 }
