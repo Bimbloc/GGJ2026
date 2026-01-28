@@ -9,7 +9,16 @@ export default class Test extends BaseScene {
     preload() {
         this.load.image('cuernos', 'assets/MaskParts/Cuernos.png');
         this.load.image('gatorejas', 'assets/MaskParts/OrejasGato.png');
-        this.load.image('yipee', 'assets/favicon.png')
+        this.load.image('yipee', 'assets/favicon.png');
+        this.load.image('funhead', 'assets/MaskParts/funhead1.png');
+        this.load.image('fancyhead', 'assets/MaskParts/fancyhead1.png');
+        this.load.image('naturalhead', 'assets/MaskParts/nathead1.png');
+        this.load.image('edgyhead', 'assets/MaskParts/edgyhead1.png');
+        this.load.image('mshead', 'assets/MaskParts/mshead1.png');
+        this.load.image('safehead', 'assets/MaskParts/safehead1.png');
+
+
+
     }
 
     create() {

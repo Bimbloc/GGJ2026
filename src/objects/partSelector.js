@@ -16,7 +16,14 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         this.images = [
             'cuernos',
             'gatorejas',
-            'yipee'
+            'yipee',
+            'funhead',
+            'fancyhead',
+            'naturalhead',
+            'edgyhead',
+            'mshead',
+            'safehead'
+            
         ];
         this.imageIndex = 0;
         this.image = scene.add.image(x, y, this.images[this.imageIndex]);
