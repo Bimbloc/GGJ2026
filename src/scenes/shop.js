@@ -1,7 +1,6 @@
 import BaseScene from "./baseScene.js";
 import RectTextButton from "../UI/rectTextButton.js"
 import { growAnimation } from "../utils/graphics.js";
-import PartSelector from "../objects/partSelector.js";
 
 export default class Shop extends BaseScene {
     constructor() {
@@ -25,7 +24,7 @@ export default class Shop extends BaseScene {
         const BUTTON_WIDTH = 400;
         const BUTTON_HEIGHT = 150;
         const BUTTON_COLOR = 0xffffff;
-        let button = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "Jugar", TEXT_CONFIG, () => {}, "PlayButton", 0.5, 0.5, 25, BUTTON_COLOR)
+        let button = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "Jugar", TEXT_CONFIG, () => {}, "PlayButton", 0.5, 0.5, 25, BUTTON_COLOR);
 
         growAnimation(button, button.list, () => { 
             console.log("pressed"); 

@@ -34,6 +34,15 @@ export default class PreloaderScene extends BaseScene {
                 });
             });
         }
+        
+        this.load.image("gachaBg", "bg.png");
+        this.load.image("gachaTop", "placeholders/gacha_top.png");
+        this.load.image("gachaBot", "placeholders/gacha_bot.png");
+        this.load.image("handle", "placeholders/handle.png");
+        this.load.image("capsule", "placeholders/capsule.png");
+        this.load.image("capsuleBot", "placeholders/capsule_bot.png");
+        this.load.image("capsuleTop", "placeholders/capsule_top.png");
+
     }
 
     create(params) {

@@ -19,7 +19,8 @@ export default class GameManager extends Singleton {
     }
 
     goToMainMenu() {
-        this.sceneManager.changeScene("Shop", null, true, false);
+        // this.sceneManager.changeScene("Shop", null, true, false);
+        this.sceneManager.changeScene("Gacha", null, true, false);
     }
 
     resetGame() {
