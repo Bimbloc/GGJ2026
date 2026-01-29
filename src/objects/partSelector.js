@@ -1,16 +1,23 @@
 import GameManager from "../managers/gameManager.js";
+import ImageTextButton from "../UI/imageTextButton.js";
 
 export default class PartSelector extends Phaser.GameObjects.GameObject {
     get baseSpeed() { return 5; }
-    get maxMove() { return 200; }
+    get maxMove() { return 150; }
 
-    constructor(scene, x, y, part) {
+    constructor(scene, x, y, part, buttonOffset) {
         super(scene, 'part_selector');
         this.x = x;
         this.y = y;
         this.moving = false;
-        this.keyDown = false;
         scene.add.existing(this);
+
+        this.buttonLeft = new ImageTextButton(scene, x - 200, y + buttonOffset, '', null, () => {
+            this.moveLeft();
+        }, '', 'leftButton', 0.5, 0.5, 0.1, 0.1);
+        this.buttonRight = new ImageTextButton(scene, x + 200, y + buttonOffset, '', null, () => {
+            this.moveRight();
+        }, '', 'rightButton', 0.5, 0.5, 0.1, 0.1);
 
         const gm = GameManager.getInstance();
 
@@ -22,61 +29,48 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         });
         this.imageIndex = 0;
         this.image = scene.add.image(x, y, this.images[this.imageIndex]);
-
-        // Input de teclado (TODO: Cambiar por botones)
-        this.input = this.scene.input.keyboard.addKeys({
-            //movimiento
-            left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-            right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
-        });
+        this.newImage = scene.add.image(x, y);
+        this.newImage.setVisible(false);
     }
 
     preUpdate(t, dt) {
-        if(this.input.left.isDown && !this.input.right.isDown) {
-            this.moveLeft();
-        }
-
-        if(this.input.right.isDown && !this.input.left.isDown) {
-            this.moveRight();
-        }
-
         if(this.moving) {
             this.image.x += this.speed * dt;
             this.newImage.x += this.speed * dt;
             if(Math.abs(this.image.x - this.x) >= this.maxMove) {
-                this.image.destroy();
+                const temp = this.image;
                 this.image = this.newImage;
+                this.newImage = temp;
                 this.image.x = this.x;
                 this.moving = false;
+                this.newImage.setVisible(false);
             }
-        }
-
-        if(this.keyDown && !this.input[this.keyDown].isDown) {
-            this.keyDown = false;
         }
     }
 
     moveLeft() {
-        if(this.moving || this.keyDown) return;
+        if(this.moving) return;
         this.moving = true;
-        this.keyDown = "left";
         this.speed = -this.baseSpeed;
         this.imageIndex--;
         if(this.imageIndex < 0) {
             this.imageIndex += this.images.length;
         }
-        this.newImage = this.scene.add.image(this.x + this.maxMove, this.y, this.images[this.imageIndex]);
+        this.newImage.setTexture(this.images[this.imageIndex]);
+        this.newImage.x = this.x + this.maxMove;
+        this.newImage.setVisible(true);
     }
 
     moveRight() {
-        if(this.moving || this.keyDown) return;
+        if(this.moving) return;
         this.moving = true;
-        this.keyDown = "right";
         this.speed = this.baseSpeed;
         this.imageIndex++;
         if(this.imageIndex >= this.images.length) {
             this.imageIndex -= this.images.length;
         }
-        this.newImage = this.scene.add.image(this.x - this.maxMove, this.y, this.images[this.imageIndex]);
+        this.newImage.x = this.x - this.maxMove;
+        this.newImage.setTexture(this.images[this.imageIndex]);
+        this.newImage.setVisible(true);
     }
 }
