@@ -75,7 +75,6 @@ export function setInteractive(gameObject, config = {}) {
 
     // Cambia la funcionalidad del disableInteractive
     gameObject.disableInteractive = () => {
-        // console.log("disabled");
 
         // Llama al disableInteractive original forzando el cambio de cursor al por defecto
         defaultDisableInteractive(true);

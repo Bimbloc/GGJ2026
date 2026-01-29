@@ -12,6 +12,7 @@ export default class Gacha extends BaseScene {
         let bg = this.add.image(0, 0, "shopBg").setOrigin(0, 0);
         bg.setScale(this.CANVAS_WIDTH / bg.displayWidth, this.CANVAS_HEIGHT / bg.displayHeight);
 
+        // TODO: Ajustar estetica/reemplazar los botones con imagenes
         const TEXT_CONFIG = {
             fontSize: 70,
             fill: "#000000",
@@ -24,23 +25,23 @@ export default class Gacha extends BaseScene {
         const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - OFFSET;
         const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - OFFSET;
         const BUTTON_COLOR = 0xffffff;
-        this.multiPull = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "x10", TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
+        this.MULTI_PULL_AMOUNT = 10;
+        this.multiPull = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, `x${this.MULTI_PULL_AMOUNT}`, TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
         this.singlePull = new RectTextButton(this, this.multiPull.x - BUTTON_WIDTH - OFFSET, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "x1", TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
 
         growAnimation(this.singlePull, this.singlePull.list, () => {
-            this.pull(this.handle, this.capsule);
+            this.pull(1);
         }, false, false, 1.05, true);
 
         growAnimation(this.multiPull, this.multiPull.list, () => {
-            this.pull(this.handle, this.capsule);
+            this.pull(this.MULTI_PULL_AMOUNT);
         }, false, false, 1.05, true);
 
-
+        // TODO: Reemplazar por imagenes finales
         this.machineBot = this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, "gachaBot").setDepth(0);
         this.capsule = this.add.image(638, 507, "capsule").setDepth(1);
         this.capsuleTop = this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, "gachaTop").setDepth(1);
         this.handle = this.add.image(557, 572, "handle").setDepth(1);
-
 
         this.capsuleTop = this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, "capsuleTop").setScale(2).setDepth(1);
         this.capsuleBot = this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, "capsuleBot").setScale(2).setDepth(1);
@@ -52,19 +53,32 @@ export default class Gacha extends BaseScene {
         this.flash = this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, "flash").setScale(0).setDepth(1);
     }
 
-    resetElements() {
-        // this.capsuleTop.setDepth(0);
-        this.capsule.setPosition(638, 507).setScale(1).setVisible(true).setDepth(0);
-        // this.capsuleBot.setDepth(0);
+    pull(amount) {
+        let rewards = [];
+        let hasFour = false;
+        
+        // TODO: Implementar posibilidades de verdad 
+        for (let i = rewards.length; i < amount - 1; i++) {
+            let result = Math.floor(Math.random() * (6 - 3) + 3);
+            rewards.push(result);
 
-        this.capsuleTop.setPosition(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2).setScale(2).setVisible(false);
-        this.capsuleBot.setPosition(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2).setScale(2).setVisible(false);
+            hasFour |= (result > 3);
+        }
+        if (amount === this.MULTI_PULL_AMOUNT && !hasFour) {
+            rewards.push(4);
+        }
+        else {
+            rewards.push(Math.floor(Math.random() * (6 - 3) + 3));
+        }
+        console.log(rewards);
 
-        this.resultBg.setVisible(false);
-        this.flash.setScale(0);
+        // TODO: Hacer que el jugador obtenga los objetos
+
+        this.playPullAnimation();
     }
 
-    pull() {
+    // TODO: Ajustar con graficos finales y mostrar objetos obtenidos
+    playPullAnimation() {
         this.resetElements();
         this.singlePull.disableInteractive();
         this.multiPull.disableInteractive();
@@ -197,8 +211,19 @@ export default class Gacha extends BaseScene {
         });
 
         queue.onComplete(()=> {
-            this.singlePull.setInteractive();
-            this.multiPull.setInteractive();
+            super.setInteractive(this.singlePull);
+            super.setInteractive(this.multiPull);
         });
     }
+    
+    resetElements() {
+        this.capsule.setPosition(638, 507).setScale(1).setVisible(true).setDepth(0);
+
+        this.capsuleTop.setPosition(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2).setScale(2).setVisible(false);
+        this.capsuleBot.setPosition(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2).setScale(2).setVisible(false);
+
+        this.resultBg.setVisible(false);
+        this.flash.setScale(0);
+    }
+
 }
