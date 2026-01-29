@@ -1,6 +1,7 @@
 import RectTextButton from "../UI/rectTextButton.js";
 import { growAnimation } from "../utils/graphics.js";
 import BaseScene from "./baseScene.js";
+import TweenQueue from "../utils/tweenQueue.js";
 
 export default class Gacha extends BaseScene {
     constructor() {
@@ -44,6 +45,8 @@ export default class Gacha extends BaseScene {
         const SPIN_DURATION = 300;
         const SPIN_DELAY = 100;
 
+        let queue = new TweenQueue(this.tweens);
+
         let animInfo = {
             targets: handle,
             duration: SPIN_DURATION,
@@ -51,50 +54,30 @@ export default class Gacha extends BaseScene {
             rotation: Math.PI * 0.5
         };
 
-        let anim = this.tweens.add(animInfo);
-        anim.on("complete", () => {
-            animInfo.rotation = handle.rotation + Math.PI * 0.5;
-            setTimeout(() => {
-                anim = this.tweens.add(animInfo);
-                anim.on("complete", () => {
-                    animInfo.rotation = handle.rotation + Math.PI * 0.5;
-                    setTimeout(() => {
-                        anim = this.tweens.add(animInfo);
-                        anim.on("complete", () => {
-                            animInfo.rotation = handle.rotation + Math.PI * 0.5;
-                            setTimeout(() => {
-                                anim = this.tweens.add(animInfo);
+        for(let i = 0; i < 4; i++) {
+            queue.push((handle) => {
+                animInfo.rotation = Math.PI * 0.5 + handle.rotation;
+                return animInfo;
+            }, i === 0 ? 0 : SPIN_DELAY, handle);
+        }
 
-                                anim.on("complete", () => {
-                                    setTimeout(() => {
-                                        anim = this.tweens.add({
-                                            targets: capsule,
-                                            duration: 100,
-                                            repeat: 0,
-                                            y: capsule.y + capsule.displayHeight
-                                        });
-
-                                        anim.on("complete", () => {
-                                            capsule.setDepth(1);
-                                            setTimeout(() => {
-                                                anim = this.tweens.add({
-                                                    targets: capsule,
-                                                    duration: 200,
-                                                    scale: capsule.scale * 2,
-                                                    x: this.CANVAS_WIDTH / 2,
-                                                    y: this.CANVAS_HEIGHT / 2,
-                                                    repeat: 0,
-                                                });
-                                            }, SPIN_DELAY);
-                                        });
-
-                                    }, SPIN_DELAY);
-                                });
-                            }, SPIN_DELAY);
-                        });
-                    }, SPIN_DELAY);
-                });
-            }, SPIN_DELAY);
+        queue.push({
+            targets: capsule,
+            duration: 100,
+            repeat: 0,
+            y: capsule.y + capsule.displayHeight
         });
+
+        queue.push((capsule) => {
+            capsule.setDepth(1);
+            return {
+                targets: capsule,
+                duration: 200,
+                scale: capsule.scale * 2,
+                x: this.CANVAS_WIDTH / 2,
+                y: this.CANVAS_HEIGHT / 2,
+                repeat: 0,
+            };
+        }, SPIN_DELAY, capsule);
     }
 }

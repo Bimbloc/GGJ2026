@@ -22,11 +22,8 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         const gm = GameManager.getInstance();
 
         // Imagen
-        this.images = [];
         const cosmetics = gm.blackboard.get("cosmetics").get(part);
-        cosmetics.forEach(id => {
-            this.images = this.images.concat(id);
-        });
+        this.images = Array.from(cosmetics);
         this.imageIndex = 0;
         this.image = scene.add.image(x, y, this.images[this.imageIndex]);
         this.newImage = scene.add.image(x, y);
