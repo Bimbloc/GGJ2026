@@ -14,8 +14,6 @@ export default class Shop extends BaseScene {
         let bg = this.add.image(0, 0, "shopBg").setOrigin(0, 0);
         bg.setScale(this.CANVAS_WIDTH / bg.displayWidth , this.CANVAS_HEIGHT / bg.displayHeight);
 
-        let partSelector = new PartSelector(this, 0, 0, this.gameManager.blackboard.get("cosmetics"));
-
         const TEXT_CONFIG = {
             fontSize: 70,
             fill: "#000000",
