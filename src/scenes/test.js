@@ -7,16 +7,12 @@ export default class Test extends BaseScene {
     }
 
     preload() {
-        this.load.image('cuernos', 'assets/MaskParts/Cuernos.png');
-        this.load.image('gatorejas', 'assets/MaskParts/OrejasGato.png');
-        this.load.image('yipee', 'assets/favicon.png');
-
-
-
+        this.load.image('personajeTest', 'assets/characters/char1.png');
     }
 
     create() {
         this.add.rectangle(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2, 1000, 1000, 0xffffff, 1);
+        this.add.image(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT * 3 / 4, 'personajeTest');
         this.partSelector = new PartSelector(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT * 3 / 4, 'head');
         this.partSelector = new PartSelector(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT * 3 / 4, 'eyes');
         this.partSelector = new PartSelector(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT * 3 / 4, 'mouth');
