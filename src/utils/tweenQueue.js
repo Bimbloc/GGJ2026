@@ -3,6 +3,7 @@ export default class TweenQueue {
         this.queue = [];
         this.running = false;
         this.tweens = tweensObj;
+        this.completeCallbacks = [];
     }
 
     push(tweenInfo, timeout) {
@@ -11,8 +12,15 @@ export default class TweenQueue {
         this.next();
     }
 
+    // Don't call this method :)
     next() {
-        if(this.running || this.queue.length === 0) return;
+        if(this.running) return;
+        if(this.queue.length === 0) {
+            this.completeCallbacks.forEach(callback => {
+                callback();
+            });
+            return;
+        }
 
         this.running = true;
         const info = this.queue.shift();
@@ -26,5 +34,9 @@ export default class TweenQueue {
             let tween = this.tweens.add(info.tweenInfo);
             tween.on("complete", () => { this.running = false; this.next(); });
         }
+    }
+
+    onComplete(func) {
+        this.completeCallbacks.push(func);
     }
 }
