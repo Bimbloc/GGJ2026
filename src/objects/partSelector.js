@@ -1,10 +1,10 @@
-
+import GameManager from "../managers/gameManager.js";
 
 export default class PartSelector extends Phaser.GameObjects.GameObject {
     get baseSpeed() { return 5; }
     get maxMove() { return 200; }
 
-    constructor(scene, x, y) {
+    constructor(scene, x, y, part) {
         super(scene, 'part_selector');
         this.x = x;
         this.y = y;
@@ -12,23 +12,18 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         this.keyDown = false;
         scene.add.existing(this);
 
+        const gm = GameManager.getInstance();
+
         // Imagen
-        this.images = [
-            'cuernos',
-            'gatorejas',
-            'yipee',
-            'funhead',
-            'fancyhead',
-            'naturalhead',
-            'edgyhead',
-            'mshead',
-            'safehead'
-            
-        ];
+        this.images = [];
+        const cosmetics = gm.blackboard.get("cosmetics").get(part);
+        cosmetics.forEach(id => {
+            this.images = this.images.concat(id);
+        });
         this.imageIndex = 0;
         this.image = scene.add.image(x, y, this.images[this.imageIndex]);
 
-        // Input de teclado
+        // Input de teclado (TODO: Cambiar por botones)
         this.input = this.scene.input.keyboard.addKeys({
             //movimiento
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
@@ -61,32 +56,27 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         }
     }
 
-    baseMove() {
-        this.moving = true;
-        this.newImage = this.scene.add.image(this.x + this.maxMove, this.y, this.images[this.imageIndex]);
-    }
-
     moveLeft() {
         if(this.moving || this.keyDown) return;
+        this.moving = true;
         this.keyDown = "left";
-        console.log('Move left!');
         this.speed = -this.baseSpeed;
         this.imageIndex--;
         if(this.imageIndex < 0) {
             this.imageIndex += this.images.length;
         }
-        this.baseMove();
+        this.newImage = this.scene.add.image(this.x + this.maxMove, this.y, this.images[this.imageIndex]);
     }
 
     moveRight() {
         if(this.moving || this.keyDown) return;
+        this.moving = true;
         this.keyDown = "right";
-        console.log('Move right!');
         this.speed = this.baseSpeed;
         this.imageIndex++;
         if(this.imageIndex >= this.images.length) {
             this.imageIndex -= this.images.length;
         }
-        this.baseMove();
+        this.newImage = this.scene.add.image(this.x - this.maxMove, this.y, this.images[this.imageIndex]);
     }
 }
