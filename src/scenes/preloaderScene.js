@@ -18,6 +18,8 @@ export default class PreloaderScene extends BaseScene {
 
         this.load.image("test", "favicon.png");
         this.load.image("shopBg", "bg/scenario.png");
+        this.load.image("counter", "bg/counter.png");
+        this.load.image("counterProps", "bg/counterProps.png");
 
         let parts = ["eyes", "head", "mouth", "nose"];
         let styles = ["edgy", "fancy", "funny", "girly", "ms", "nat", "safe"];
@@ -36,13 +38,21 @@ export default class PreloaderScene extends BaseScene {
         }
         
         this.load.image("gachaBg", "bg.png");
-        this.load.image("gachaTop", "placeholders/gacha_top.png");
-        this.load.image("gachaBot", "placeholders/gacha_bot.png");
-        this.load.image("handle", "placeholders/handle.png");
-        this.load.image("capsule", "placeholders/capsule.png");
-        this.load.image("capsuleBot", "placeholders/capsule_bot.png");
-        this.load.image("capsuleTop", "placeholders/capsule_top.png");
-        this.load.image("flash", "placeholders/flash.png");
+        this.load.image("gachaTop", "gacha/gacha.png");
+        this.load.image("gachaBot", "gacha/gacha_hole.png");
+        this.load.image("handle", "gacha/gacha_wheel.png");
+
+        let capsuleVariants = 3;
+        this.capsules = [];
+        for (let i = 1; i <= capsuleVariants; i++) {
+            this.capsules.push(`capsule${i}`);
+            this.load.image(`capsule${i}`, `gacha/capsule_${i}_bot.png`);
+        }
+        this.load.image("capsuleTop", `gacha/capsule_top.png`);
+        
+        // this.load.image("capsuleBot", "gacha/capsule_bot.png");
+        // this.load.image("capsuleTop", "gacha/capsule_top.png");
+        this.load.image("flash", "gacha/effects.png");
 
     }
 
@@ -53,6 +63,7 @@ export default class PreloaderScene extends BaseScene {
         this.gameManager.goToMainMenu();
 
         this.gameManager.blackboard.set("cosmetics", this.cosmetics);
+        this.gameManager.blackboard.set("capsules", this.capsules);
     }
 
     /**

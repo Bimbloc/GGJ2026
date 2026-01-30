@@ -7,7 +7,7 @@ const MAX_W = 1200, MAX_H = 900, MIN_W = 400, MIN_H = 300;
 const CONFIG = {
     width: MAX_W,
     height: MAX_H,
-    backgroundColor: "#000000",
+    backgroundColor: "#f4c8e3",
     version: "1.0",
 
     type: Phaser.AUTO,
@@ -41,6 +41,6 @@ const CONFIG = {
     },
 }
 
-gameDebug.enable = false;
+gameDebug.enable = true;
 gameDebug.enableText = false;
 const GAME = new Phaser.Game(CONFIG);

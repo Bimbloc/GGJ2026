@@ -1,8 +1,8 @@
-import BaseScene from "./baseScene.js";
-import RectTextButton from "../UI/rectTextButton.js"
+import BaseShop from "./baseShop.js";
+import RectTextButton from "../UI/rectTextButton.js";
 import { growAnimation } from "../utils/graphics.js";
 
-export default class Shop extends BaseScene {
+export default class MainShop extends BaseShop {
     constructor() {
         super("Shop");
     }
@@ -10,24 +10,47 @@ export default class Shop extends BaseScene {
     create() {
         super.create();
 
-        let bg = this.add.image(0, 0, "shopBg").setOrigin(0, 0);
-        bg.setScale(this.CANVAS_WIDTH / bg.displayWidth , this.CANVAS_HEIGHT / bg.displayHeight);
+        this.INIT_PROPS_X = this.CANVAS_WIDTH / 2;
+        this.MOVED_PROPS_X = -this.counter.displayWidth / 2;
+        this.MOVING_DURATION = 500;
 
-        const TEXT_CONFIG = {
-            fontSize: 70,
-            fill: "#000000",
-            fontStyle: "bold",
-            fontFamily: "Pacifico-Regular"
+        this.props = this.add.image(this.CANVAS_WIDTH / 2, this.counter.y - 190, "counterProps").setOrigin(0.5, 1);
+        this.props.setScale(1.5);
+
+        this.gachaButton = new RectTextButton(this, 200, 100, 300, 100, "Gacha", this.BASE_TEXT_CONFIG, () => { }, "GoToGachaButton", 0.5, 0.5, 25, 0xffffff);
+        growAnimation(this.gachaButton, this.gachaButton, () => {
+            let anim = this.tweens.add({
+                targets: this.props,
+                duration: this.MOVING_DURATION,
+                repeat: 0,
+                x: this.MOVED_PROPS_X,
+                ease: "Sine.Out"
+            });
+
+            this.gachaButton.disableInteractive();
+            this.gachaButton.activate(false);
+
+            anim.on("complete", () => {
+                this.sceneManager.changeScene("Gacha", null, false, true);
+            });
+        }, true, true, 1.1, true);
+    }
+
+    onWake(params) {
+        if (this.props.x != this.INIT_PROPS_X) {
+            let anim = this.tweens.add({
+                targets: this.props,
+                duration: this.MOVING_DURATION,
+                repeat: 0,
+                x: this.INIT_PROPS_X,
+                ease: "Sine.In"
+            });
+
+            anim.on("complete", () => {
+                this.gachaButton.activate(true, () => {
+                    this.setInteractive(this.gachaButton);
+                });
+            });
         }
-        const BUTTON_X = this.CANVAS_WIDTH / 2;
-        const BUTTON_Y = this.CANVAS_HEIGHT / 2;
-        const BUTTON_WIDTH = 400;
-        const BUTTON_HEIGHT = 150;
-        const BUTTON_COLOR = 0xffffff;
-        let button = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "Jugar", TEXT_CONFIG, () => {}, "PlayButton", 0.5, 0.5, 25, BUTTON_COLOR);
-
-        growAnimation(button, button.list, () => { 
-            console.log("pressed"); 
-        }, false, false, 1.05, true);
     }
 }

@@ -62,8 +62,6 @@ export default class DialogBox extends InteractiveContainer {
             realHeight: 60,
         }
 
-        // TODO: Meter soporte para nineslice para las cajas de texto y nombre
-
 
         // Completar los parametros faltantes de los argumentos
         this.textboxConfig = completeMissingProperties(textboxConfig, DEFAULT_TEXTBOX_CONFIG);

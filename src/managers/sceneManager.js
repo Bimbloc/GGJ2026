@@ -112,6 +112,7 @@ export default class SceneManager extends Singleton {
             }
 
             // Se guarda la escena a las escenas que estan ejecutandose
+            let wasRunning = this.runningScenes.has(this.currentScene)
             this.runningScenes.add(this.currentScene);
 
             if (anim) {
@@ -119,8 +120,12 @@ export default class SceneManager extends Singleton {
                     this.fadeIn(fadeInTime);
                 }
                 // Cuando se termina de crear la escena, se reproduce el fade in
-                this.currentScene.events.on("create", fadeIn);
-                this.currentScene.events.on("wake", fadeIn);
+                if (wasRunning) {
+                    this.currentScene.events.once("wake", fadeIn);
+                }
+                else {
+                    this.currentScene.events.once("create", fadeIn);
+                }
             }
         }
         if (anim) {
