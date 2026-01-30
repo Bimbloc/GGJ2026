@@ -16,6 +16,8 @@ export default class PreloaderScene extends BaseScene {
     preload() {
         this.load.setPath("assets/");
 
+        this.scene.scene.registry.set("pointerOver", "assets/UI/pointers/clicker.png");
+
         this.load.image("test", "favicon.png");
         this.load.image("shopBg", "bg/scenario.png");
         this.load.image("counter", "bg/counter.png");

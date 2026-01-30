@@ -1,0 +1,5 @@
+* [Background](https://www.freepik.com/free-vector/gradient-light-peach-background_40470374.htm)
+* [Font](https://fonts.google.com/specimen/Pacifico)
+* [Cursor](https://www.flaticon.com/free-icon/cursor_587335)
+* [Clicker](https://www.flaticon.com/free-icon/clicker_99162)
+* [Sparkles](https://es.picmix.com/stamp/SparklesPink-2129327)
