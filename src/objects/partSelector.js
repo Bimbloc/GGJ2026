@@ -22,9 +22,10 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         const gm = GameManager.getInstance();
 
         // Imagen
-        const cosmetics = gm.blackboard.get("unlockedCosmetics").get(part);
+        const cosmetics = gm.blackboard.get("cosmetics").get(part);
         this.images = Array.from(cosmetics);
         this.imageIndex = 0;
+        this.part = part;
         this.image = scene.add.image(x, y, this.images[this.imageIndex]);
         this.newImage = scene.add.image(x, y);
         this.newImage.setVisible(false);
@@ -70,4 +71,9 @@ export default class PartSelector extends Phaser.GameObjects.GameObject {
         this.newImage.setTexture(this.images[this.imageIndex]);
         this.newImage.setVisible(true);
     }
+
+    getSelectedPart() {
+        return this.images[this.imageIndex];
+    }
+
 }

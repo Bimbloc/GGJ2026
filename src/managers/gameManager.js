@@ -53,6 +53,9 @@ export default class GameManager extends Singleton {
         this.blackboard.set("gachaCurrency", 2);
 
         this.blackboard.set("unlockedCosmetics", new Map());
+        
+        this.blackboard.set("cosmetics", this.allCosmetics);
+
         this.allCosmetics.forEach((category) => {
             if (!this.blackboard.get("unlockedCosmetics").has(category)) {
                 this.blackboard.get("unlockedCosmetics").set(category, new Set());

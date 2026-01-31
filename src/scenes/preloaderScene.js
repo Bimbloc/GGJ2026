@@ -49,6 +49,11 @@ export default class PreloaderScene extends BaseScene {
         this.load.image("star", "gacha/star.png");
         this.load.image("notification", "gacha/notification.png");
 
+        this.load.image('personajeTest', 'characters/char1.png');
+        this.load.image('leftButton', 'UI/izq.png');
+        this.load.image('rightButton', 'UI/der.png');
+
+
         let capsuleVariants = 3;
         this.capsules = [];
         for (let i = 1; i <= capsuleVariants; i++) {
@@ -67,7 +72,6 @@ export default class PreloaderScene extends BaseScene {
         super.create(params);
 
         this.sceneManager.init(this);
-
         this.gameManager.init(this.cosmetics, this.capsules);
         this.gameManager.goToMainMenu();
     }
