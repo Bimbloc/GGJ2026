@@ -14,5 +14,7 @@ export default class BaseShop extends BaseScene {
 
         this.counter = this.add.image(this.CANVAS_WIDTH / 2 - 50, this.CANVAS_HEIGHT + 20, "counter").setOrigin(0.5, 1);
         this.counter.setScale(1.9);
+
+        this.BUTTON_PADDING = 20;
     }
 }

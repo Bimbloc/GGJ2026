@@ -1,5 +1,5 @@
 import BaseShop from "./baseShop.js";
-import RectTextButton from "../UI/rectTextButton.js";
+import ImageTextButton from "../UI/imageTextButton.js";
 import { growAnimation } from "../utils/graphics.js";
 
 export default class MainShop extends BaseShop {
@@ -10,14 +10,17 @@ export default class MainShop extends BaseShop {
     create() {
         super.create();
 
-        this.INIT_PROPS_X = this.CANVAS_WIDTH / 2;
+        this.INIT_PROPS_X = this.CANVAS_WIDTH * 0.55;
         this.MOVED_PROPS_X = -this.counter.displayWidth / 2;
         this.MOVING_DURATION = 500;
 
-        this.props = this.add.image(this.CANVAS_WIDTH / 2, this.counter.y - 190, "counterProps").setOrigin(0.5, 1);
+        this.props = this.add.image(this.INIT_PROPS_X, this.counter.y - 190, "counterProps").setOrigin(0.5, 1);
         this.props.setScale(1.5);
+        
+        this.gachaButton = new ImageTextButton(this, 0, 0, "", {}, () => { }, "", "gachaIcon").setScale(0.3);
+        this.gachaButton.x = this.gachaButton.displayWidth / 2 + this.BUTTON_PADDING;
+        this.gachaButton.y = this.gachaButton.displayHeight / 2 + this.BUTTON_PADDING;
 
-        this.gachaButton = new RectTextButton(this, 200, 100, 300, 100, "Gacha", this.BASE_TEXT_CONFIG, () => { }, "GoToGachaButton", 0.5, 0.5, 25, 0xffffff);
         growAnimation(this.gachaButton, this.gachaButton, () => {
             let anim = this.tweens.add({
                 targets: this.props,
@@ -34,6 +37,9 @@ export default class MainShop extends BaseShop {
                 this.sceneManager.changeScene("Gacha", null, false, true);
             });
         }, true, true, 1.1, true);
+
+        
+        // TODO: Todo el flujo de juego xdn't
     }
 
     onWake(params) {

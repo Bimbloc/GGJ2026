@@ -1,4 +1,6 @@
 import TweenQueue from "../utils/tweenQueue.js";
+import GachaItem from "./gachaItem.js";
+import Grid from "../UI/grid.js";
 
 export default class GachaMachine extends Phaser.GameObjects.Container {
     constructor(scene, x = 0, y = 0, multiPullAmount) {
@@ -8,67 +10,134 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
         this.scene = scene;
         this.MACHINE_SCALE = 1.2;
 
+        // Agujero de la maquina
         this.machineBot = scene.add.image(0, 0, "gachaBot").setScale(this.MACHINE_SCALE);
-        this.machineTop = scene.add.image(0, 0, "gachaTop").setScale(this.MACHINE_SCALE);
-        this.handle = scene.add.image(-100 / 2, 285 / 2, "handle").setScale(this.MACHINE_SCALE);
         this.add(this.machineBot);
+        
+        // Parte superior de la maquina
+        this.machineTop = scene.add.image(0, 0, "gachaTop").setScale(this.MACHINE_SCALE);
         this.add(this.machineTop);
+
+        // Manivela de la maquina
+        this.handle = scene.add.image(-100 / 2, 285 / 2, "handle").setScale(this.MACHINE_SCALE);
         this.add(this.handle);
 
-        this.CAPSULE_VARIANTS = scene.gameManager.blackboard.get("capsules");
+        // Capsula separada en parte superior e inferior
+        this.CAPSULE_VARIANTS = scene.gameManager.allCapsules;
         this.CAPSULE_INIT_X = 50;
         this.CAPSULE_INIT_Y = 70;
         this.capsule = scene.add.container(0, 0);
-        this.capsuleTop = scene.add.image(0, 0, "capsuleTop");
-        this.capsuleBot = scene.add.image(0, 0, "");
-        this.capsule.add(this.capsuleTop);
-        this.capsule.add(this.capsuleBot);
         this.add(this.capsule);
+        this.capsuleTop = scene.add.image(0, 0, "capsuleTop");
+        this.capsule.add(this.capsuleTop);
+        this.capsuleBot = scene.add.image(0, 0, "");
+        this.capsule.add(this.capsuleBot);
 
+        // Efecto de destello al abrir la capsula
         this.flash = scene.add.image(0, -70, "flash").setScale(0);
-        this.resultBg = scene.add.image(0, 0, "gachaBg");
         this.add(this.flash);
+
+        // Fondo de los resultados de la tirada
+        this.resultBg = scene.add.image(0, 0, "gachaBg");
         this.add(this.resultBg);
 
-        // TODO: Crear multiPullAmount objetos para mostrar los resultados de las tiradas
+        // Resultado de las tiradas individuale
+        const PULL_ITEMS_Y = -60;
+        this.singlePullItem = new GachaItem(scene, 0, PULL_ITEMS_Y);
+        this.singlePullItem.setInitY();
+        this.add(this.singlePullItem);
         
-        this.resetElements();
+        // Resultados de las tiradas multiples
+        const MULTI_PULL_WIDTH_MULTIPLIER = 1;
+        const MULTI_PULL_HEIGHT_MULTIPLIER = 0.7;
+        const MULTI_PULL_WIDTH = scene.CANVAS_WIDTH * MULTI_PULL_WIDTH_MULTIPLIER;
+        const MULTI_PULL_HEIGHT = scene.CANVAS_HEIGHT * MULTI_PULL_HEIGHT_MULTIPLIER;
+        const MULTI_PULL_GRID_X = -scene.CANVAS_WIDTH * (MULTI_PULL_WIDTH_MULTIPLIER / 2);
+        const MULTI_PULL_GRID_Y = -scene.CANVAS_HEIGHT * (MULTI_PULL_HEIGHT_MULTIPLIER / 2) + PULL_ITEMS_Y;
+        const MULTI_PULL_PADDING = 30;
+        this.multiPullGrid = new Grid(scene, MULTI_PULL_GRID_X, MULTI_PULL_GRID_Y, MULTI_PULL_WIDTH, MULTI_PULL_HEIGHT, scene.MULTI_PULL_AMOUNT / 2, 2, MULTI_PULL_PADDING);
+        this.add(this.multiPullGrid);
+        this.multiPullItems = [];
+        for (let i = 0; i < multiPullAmount; i++) {
+            let item = new GachaItem(scene, 0, PULL_ITEMS_Y);
+            this.multiPullItems.push(item);
+            this.multiPullGrid.addItem(item);
+
+            item.setInitY();
+        }
+
+        this.tweenChain = this.scene.tweens.chain({
+            targets: null,
+            tweens: [
+                {
+                    targets: [],
+                    duration: 0,
+                    repeat: 0
+                }
+            ]
+        });
+        this.tweenChain.pause();
+
 
         this.tweenQueue = new TweenQueue(scene.tweens, scene.dispatcher);
+        this.tweenQueue.onComplete(() => {
+            this.scene.dispatcher.dispatch("pullAnimationEnded");
+        });
+
+        this.resetElements();
     }
 
     resetElements() {
-        this.capsuleBot.y = 0;
-        this.capsuleTop.y = 0;
-        this.capsule.setPosition(this.CAPSULE_INIT_X, this.CAPSULE_INIT_Y).setScale(this.MACHINE_SCALE).setVisible(true);
-        this.capsule.setPosition(this.CAPSULE_INIT_X, this.CAPSULE_INIT_Y).setScale(this.MACHINE_SCALE).setVisible(true);
-        this.capsuleBot.setTexture(this.CAPSULE_VARIANTS[Math.floor(Math.random() * this.CAPSULE_VARIANTS.length)]);
+        let duration = this.resultBg.visible ? 700 : 0;
+        
+        // Oculta los resultados anteriores (por si acaso)
+        let anim = this.scene.tweens.add({
+            targets: [this.resultBg, this.singlePullItem, this.multiPullGrid],
+            alpha: { from: 1, to: 0 },
+            duration: duration,
+            repeat: 0,
+        });
+        anim.on("complete", () => {
+            // Se unen las 2 partes de la capsula
+            this.capsuleBot.y = 0;
+            this.capsuleTop.y = 0;
 
-        this.resultBg.setVisible(false);
-        this.flash.setVisible(false).setScale(0).setRotation(0);
+            // Se recoloca la capsula y se asigna a la parte inferior una textura aleatoria
+            this.capsule.setPosition(this.CAPSULE_INIT_X, this.CAPSULE_INIT_Y).setScale(this.MACHINE_SCALE).setVisible(true);
+            this.capsuleBot.setTexture(this.CAPSULE_VARIANTS[Math.floor(Math.random() * this.CAPSULE_VARIANTS.length)]);
 
-        this.sendToBack(this.capsule);
-        this.sendToBack(this.machineBot);
-        this.bringToTop(this.machineTop);
-        this.bringToTop(this.handle);
-        this.bringToTop(this.flash);
-        this.bringToTop(this.resultBg);
+            // Oculta el fondo y los resultados de las tiradas y reinicia sus opacidades
+            this.resultBg.setVisible(false).setAlpha(1);
+            this.singlePullItem.setVisible(false).setAlpha(1);
+            this.multiPullGrid.setVisible(false).setAlpha(1);
+
+            // Oculta el destello y reinicia su rotacion
+            this.flash.setVisible(false).setScale(0).setRotation(0);
+
+            // Recoloca todos los objetos en su profundidad correspondiente
+            this.sendToBack(this.capsule);
+            this.sendToBack(this.machineBot);
+            this.bringToTop(this.machineTop);
+            this.bringToTop(this.handle);
+            this.bringToTop(this.flash);
+            this.bringToTop(this.resultBg);
+            this.bringToTop(this.singlePullItem);
+            this.bringToTop(this.multiPullGrid);
+        });
+        return anim;
     }
 
     playPullAnimation(results = []) {
-        this.resetElements();
+        this.resetElements().on("complete", () => {
+            this.spinHandle();
+            this.fallAndBounce();
+            this.growCapsule();
+            this.shakeCapsule();
+            this.openCapsule();
+            this.showFlash();
 
-        this.spinHandle();
-        this.fallAndBounce();
-        this.growCapsule();
-        this.shakeCapsule();
-        this.openCapsule();
-        this.showFlash();
-
-        // TODO: Actualizar objetos obtenidos por los objetos de los resultados 
-        
-        this.showResults(results);
-
+            this.showResults(results);
+        });
     }
 
     spinHandle() {
@@ -178,21 +247,32 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
         });
     }
 
-    showResults(results) {
+    showResults(rewards) {
         this.tweenQueue.push(() => {
             this.resultBg.setVisible(true);
+            this.capsule.setVisible(false);
             return {
                 targets: this.flash,
                 alpha: { from: 1, to: 0 },
-                duration: 700,
+                duration: 500,
                 repeat: 0,
             };
         }, 500);
 
-        // TODO: Mostrar animacion de los objetos
+        this.scene.dispatcher.addOnce("pullAnimationEnded", this, () => {
+            if (rewards.length == 1) {
+                this.singlePullItem.setVisible(true);
+                this.bringToTop(this.singlePullItem);
+                this.singlePullItem.changeItem(rewards[0].texture, rewards[0].rarity, rewards[0].isNew);
+            }
+            else {
+                this.multiPullGrid.setVisible(true);
+                this.bringToTop(this.multiPullGrid);
 
-        this.tweenQueue.onComplete(() => {
-            this.scene.dispatcher.dispatch("pullAnimationEnded");
+                for (let i = 0; i< rewards.length; i++) {
+                    this.multiPullItems[i].changeItem(rewards[i].texture, rewards[i].rarity, rewards[i].isNew);
+                }
+            }
         });
     }
 }

@@ -3,3 +3,5 @@
 * [Cursor](https://www.flaticon.com/free-icon/cursor_587335)
 * [Clicker](https://www.flaticon.com/free-icon/clicker_99162)
 * [Sparkles](https://es.picmix.com/stamp/SparklesPink-2129327)
+* [Star](https://www.flaticon.com/free-icon/star_2099045)
+* [Notification](https://www.flaticon.com/free-icon/star_7077999)

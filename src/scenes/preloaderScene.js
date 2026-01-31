@@ -22,6 +22,7 @@ export default class PreloaderScene extends BaseScene {
         this.load.image("shopBg", "bg/scenario.png");
         this.load.image("counter", "bg/counter.png");
         this.load.image("counterProps", "bg/counterProps.png");
+        this.load.image("gachaIcon", "UI/goToscene_gacha.png");
 
         let parts = ["eyes", "head", "mouth", "nose"];
         let styles = ["edgy", "fancy", "funny", "girly", "ms", "nat", "safe"];
@@ -29,20 +30,24 @@ export default class PreloaderScene extends BaseScene {
 
         this.cosmetics = new Map();
         for (let i = 1; i <= variants; i++) {
-            parts.forEach(part => {
-                this.cosmetics.set(part, new Set());
+            parts.forEach(category => {
+                this.cosmetics.set(category, new Set());
                 styles.forEach(style => {
-                    let id = `${part}_${style}_${i}`;
-                    this.cosmetics.get(part).add(id)
+                    let id = `${category}_${style}_${i}`;
+                    this.cosmetics.get(category).add(id)
                     this.load.image(`${id}`, `maskParts/${id}.png`);
+                    this.load.image(`${id}_preview`, `gacha/items/${id}.png`);
                 });
             });
         }
-        
-        this.load.image("gachaBg", "bg.png");
+
+        this.load.image("shopIcon", "UI/goToscene_shop.png");
+        this.load.image("gachaBg", "gacha/bg.png");
         this.load.image("gachaTop", "gacha/gacha.png");
         this.load.image("gachaBot", "gacha/gacha_hole.png");
         this.load.image("handle", "gacha/gacha_wheel.png");
+        this.load.image("star", "gacha/star.png");
+        this.load.image("notification", "gacha/notification.png");
 
         let capsuleVariants = 3;
         this.capsules = [];
@@ -62,10 +67,9 @@ export default class PreloaderScene extends BaseScene {
         super.create(params);
 
         this.sceneManager.init(this);
-        this.gameManager.goToMainMenu();
 
-        this.gameManager.blackboard.set("cosmetics", this.cosmetics);
-        this.gameManager.blackboard.set("capsules", this.capsules);
+        this.gameManager.init(this.cosmetics, this.capsules);
+        this.gameManager.goToMainMenu();
     }
 
     /**

@@ -1,17 +1,22 @@
 import BaseShop from "./baseShop.js";
-import RectTextButton from "../UI/rectTextButton.js";
 import { growAnimation } from "../utils/graphics.js";
 import GachaMachine from "../objects/gachaMachine.js";
+import ImageTextButton from "../UI/imageTextButton.js";
+import RectTextButton from "../UI/rectTextButton.js";
 
 export default class Gacha extends BaseShop {
     constructor() {
         super("Gacha");
     }
-    
+
     create() {
         super.create();
 
+
         this.MULTI_PULL_AMOUNT = 10;
+        this.REWARDS_MIN_STARS = 3;
+        this.REWARDS_MAX_STARS = 5;
+        this.ENSURED_REWARD_STARS = 4;
 
         const END_OFFSET = 150;
         this.GACHA_INIT_X = this.CANVAS_WIDTH / 2;
@@ -22,33 +27,38 @@ export default class Gacha extends BaseShop {
         this.GACHA_MOVED_Y = -END_OFFSET;
         this.GACHA_MOVED_ROT = Math.PI * 2;
         this.gachaMachine = new GachaMachine(this, this.GACHA_INIT_X, this.GACHA_INIT_Y, this.MULTI_PULL_AMOUNT).setRotation(this.GACHA_INIT_ROT);
-        
+
         this.createPullButtons();
+
         // TODO: Crear indicadores con la cantidad de "monedas", crear avisos de confirmacion y de conversion entre monedas 
 
-        this.shopButon = new RectTextButton(this, 200, 100, 300, 100, "Shop", this.BASE_TEXT_CONFIG, () => { }, "GoToShopButton", 0.5, 0.5, 25, 0xffffff);
+        this.shopButon = new ImageTextButton(this, 0, 0, "", {}, () => { }, "", "shopIcon").setScale(0.5);
+        this.shopButon.x = this.shopButon.displayWidth / 2 + this.BUTTON_PADDING;
+        this.shopButon.y = this.shopButon.displayHeight / 2 + this.BUTTON_PADDING;
         growAnimation(this.shopButon, this.shopButon, () => {
-            this.activateButtons(false, 100);
-            
-            let anim = this.tweens.add({
-                targets: this.gachaMachine,
-                duration: 300,
-                repeat: 0,
-                rotation: this.GACHA_MOVED_ROT,
-                x: this.GACHA_MOVED_X,
-                y: this.GACHA_MOVED_Y,
-            });
+            this.gachaMachine.resetElements().on("complete", () => {
+                this.activateButtons(false, 100);
 
-            anim.on("complete", () => {
-                let sceneChanged = false;
-                this.cameras.main.shake(200, 0.02);
-                this.cameras.main.on("camerashakecomplete", () => {
-                    if (!sceneChanged) {
-                        sceneChanged = true;
-                        setTimeout(() => {
-                            this.sceneManager.changeScene("Shop", null, false, true);
-                        }, 200);
-                    }
+                let anim = this.tweens.add({
+                    targets: this.gachaMachine,
+                    duration: 300,
+                    repeat: 0,
+                    rotation: this.GACHA_MOVED_ROT,
+                    x: this.GACHA_MOVED_X,
+                    y: this.GACHA_MOVED_Y,
+                });
+
+                anim.on("complete", () => {
+                    let sceneChanged = false;
+                    this.cameras.main.shake(200, 0.02);
+                    this.cameras.main.on("camerashakecomplete", () => {
+                        if (!sceneChanged) {
+                            sceneChanged = true;
+                            setTimeout(() => {
+                                this.sceneManager.changeScene("Shop", null, false, true);
+                            }, 200);
+                        }
+                    });
                 });
             });
         }, true, true, 1.1, true);
@@ -63,10 +73,10 @@ export default class Gacha extends BaseShop {
 
     onWake(params) {
         super.onWake(params);
-        
+
         this.gachaMachine.resetElements();
         this.gachaMachine.setPosition(this.GACHA_INIT_X, this.GACHA_INIT_Y).setRotation(this.GACHA_INIT_ROT);
-        this.initialAnimation();   
+        this.initialAnimation();
     }
 
     // TODO: Ajustar estetica/reemplazar los botones con imagenes
@@ -83,7 +93,7 @@ export default class Gacha extends BaseShop {
         const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - OFFSET;
         const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - OFFSET;
         const BUTTON_COLOR = 0xffffff;
-        
+
         this.multiPullButton = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, `x${this.MULTI_PULL_AMOUNT}`, TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
         this.singlePullButton = new RectTextButton(this, this.multiPullButton.x - BUTTON_WIDTH - OFFSET, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "x1", TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
 
@@ -98,7 +108,9 @@ export default class Gacha extends BaseShop {
 
 
     initialAnimation() {
-        this.activateButtons(false, 0);
+        this.shopButon.setVisible(false);
+        this.singlePullButton.setVisible(false);
+        this.multiPullButton.setVisible(false);
 
         setTimeout(() => {
             let anim = this.tweens.add({
@@ -121,28 +133,43 @@ export default class Gacha extends BaseShop {
     }
 
     pull(amount) {
-        this.activateButtons(false);
 
         let rewards = [];
-        let hasFour = false;
-        
-        // TODO: Implementar posibilidades de verdad 
-        for (let i = rewards.length; i < amount - 1; i++) {
-            let result = Math.floor(Math.random() * (6 - 3) + 3);
-            rewards.push(result);
+        let ensuredSpawned = false;
 
-            hasFour |= (result > 3);
+        for (let i = rewards.length; i < amount - 1; i++) {
+            let result = this.generateRandomPull();
+            rewards.push(result);
+            ensuredSpawned |= (result == this.ENSURED_REWARD_STARS);
         }
-        if (amount === this.MULTI_PULL_AMOUNT && !hasFour) {
-            rewards.push(4);
+
+        if (amount === this.MULTI_PULL_AMOUNT && !ensuredSpawned) {
+            let result = this.generateRandomPull(true);
+            rewards.push(result);
         }
         else {
-            rewards.push(Math.floor(Math.random() * (6 - 3) + 3));
+            rewards.push(this.generateRandomPull());
         }
-        console.log(rewards);
 
-        // TODO: Hacer que el jugador obtenga los objetos
+        this.activateButtons(false);
+        this.gachaMachine.playPullAnimation(rewards);
+    }
 
-        this.gachaMachine.playPullAnimation();
+    generateRandomPull(forceRarity = false) {
+        // TODO: Implementar probabilidades reales 
+        let rarity = forceRarity ? this.ENSURED_REWARD_STARS : Math.floor(Math.random() * ((this.REWARDS_MAX_STARS + 1) - this.REWARDS_MIN_STARS) + this.REWARDS_MIN_STARS);
+        let category = this.gameManager.allCategories[Math.floor(Math.random() * this.gameManager.allCategories.length)];
+
+        // TODO: Generar un cosmetico de la rareza correspondiente y la categoria que haya salido
+        let texture = "head_funny_1"
+
+        let result = {
+            category: category,
+            texture: texture,
+            rarity: rarity,
+            isNew: !this.gameManager.checkItemUnlocked(category, texture)
+        };
+        this.gameManager.unlockItem(category, result.texture);
+        return result;
     }
 }

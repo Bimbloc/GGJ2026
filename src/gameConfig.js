@@ -41,6 +41,6 @@ const CONFIG = {
     },
 }
 
-gameDebug.enable = true;
+gameDebug.enable = false;
 gameDebug.enableText = false;
 const GAME = new Phaser.Game(CONFIG);
