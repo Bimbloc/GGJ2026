@@ -2,6 +2,7 @@ import Singleton from "../utils/singleton.js";
 import SceneManager from "./sceneManager.js";
 import EventDispatcher from "./eventDispatcher.js";
 import Blackboard from "../utils/blackboard.js";
+import EventNames from "../utils/eventNames.js";
 
 export default class GameManager extends Singleton {
     constructor() {
@@ -35,6 +36,13 @@ export default class GameManager extends Singleton {
                 }
             });
         }
+
+        this.dispatcher.add(EventNames.clientServed, this, (param) => {
+            if(param.success) {
+                this.blackboard.set("money", this.blackboard.get("money") + 100);
+                this.dispatcher.dispatch(EventNames.currencyChanged);
+            }
+        }, true);
     }
 
     getRandomCapsule() {

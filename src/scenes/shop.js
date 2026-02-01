@@ -43,7 +43,7 @@ export default class Shop extends BaseShop {
         growAnimation(this.confirmButton, this.confirmButton, () => {
             let mask = {};
             this.selectors.forEach(sel => {
-                mask[sel.part] = sel.itemId;
+                mask[sel.category] = sel.itemId;
             });
             this.dispatcher.dispatch(EventNames.maskSubmitted, { mask });
         }, true, false, 1.1);
