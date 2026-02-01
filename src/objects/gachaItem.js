@@ -1,5 +1,4 @@
 import AnimatedContainer from "../UI/animatedContainer.js";
-import { createCircleTexture } from "../utils/graphics.js";
 
 export default class GachaItem extends AnimatedContainer {
     constructor(scene, x, y) {
@@ -8,20 +7,15 @@ export default class GachaItem extends AnimatedContainer {
         this.MIN_STARS = scene.REWARDS_MIN_STARS;
         this.MAX_STARS = scene.REWARDS_MAX_STARS;
 
-        const BG_ID = "GachaResultBg"
-        const BG_RADIUS = 120;
-        const BG_COLOR = 0xf7f7ee;
-
-        createCircleTexture(scene, BG_ID, BG_RADIUS, BG_COLOR, 1, 0, BG_COLOR);
+        const ITEM_BG_SCALE = 0.55;
+        this.add(scene.add.image(0, 0, "itemBg").setScale(ITEM_BG_SCALE));
 
         this.ITEM_SCALE = 0.8; 
-        this.itemBg = scene.add.image(0, 0, BG_ID);
         this.itemImg = scene.add.image(0, 0, "");
-        this.add(this.itemBg);
         this.add(this.itemImg).setScale(this.ITEM_SCALE);
         
         this.STAR_Y = 100;
-        this.STAR_SCALE = 0.3;
+        this.STAR_SCALE = 0.25;
         this.STARS_OFFSET = 10;
         this.stars = [];
         for (let i = 0; i < this.MAX_STARS; i++) {
@@ -96,7 +90,7 @@ export default class GachaItem extends AnimatedContainer {
         this.resetElements();
 
         rarity = Phaser.Math.Clamp(rarity, this.MIN_STARS, this.MAX_STARS);
-
+        
         for (let i = 0; i < rarity; i++) {
             let multiplier = (i % 2 == 0) ? 1 : -1;
             let star = this.stars[i];

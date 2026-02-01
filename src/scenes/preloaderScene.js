@@ -18,53 +18,59 @@ export default class PreloaderScene extends BaseScene {
 
         this.scene.scene.registry.set("pointerOver", "assets/UI/pointers/clicker.png");
 
+        this.load.image("button", "UI/button9Slice.png");
+        
         this.load.image("test", "favicon.png");
         this.load.image("shopBg", "bg/scenario.png");
         this.load.image("counter", "bg/counter.png");
         this.load.image("counterProps", "bg/counterProps.png");
         this.load.image("gachaIcon", "UI/goToscene_gacha.png");
-
+       
+        this.load.json("partsRarities", "parameters/maskParts.json");
         let parts = ["eyes", "head", "mouth", "nose"];
         let styles = ["edgy", "fancy", "funny", "girly", "ms", "nat", "safe"];
         let variants = 1;
-
-        this.cosmetics = new Map();
+        this.cosmeticsByType = new Map();
+        this.cosmeticsInfo = new Map();
         for (let i = 1; i <= variants; i++) {
             parts.forEach(category => {
-                this.cosmetics.set(category, new Set());
+                this.cosmeticsByType.set(category, new Set());
                 styles.forEach(style => {
                     let id = `${category}_${style}_${i}`;
-                    this.cosmetics.get(category).add(id)
+                    this.cosmeticsByType.get(category).add(id);
+                    this.cosmeticsInfo.set(id, { category: category });
                     this.load.image(`${id}`, `maskParts/${id}.png`);
                     this.load.image(`${id}_preview`, `gacha/items/${id}.png`);
                 });
             });
         }
+        this.load.image("maskBase", "maskParts/base.png");
+
 
         this.load.image("shopIcon", "UI/goToscene_shop.png");
         this.load.image("gachaBg", "gacha/bg.png");
         this.load.image("gachaTop", "gacha/gacha.png");
         this.load.image("gachaBot", "gacha/gacha_hole.png");
         this.load.image("handle", "gacha/gacha_wheel.png");
+        this.load.image("flash", "gacha/effects.png");
+        this.load.image("itemBg", "gacha/itemBg.png");
         this.load.image("star", "gacha/star.png");
         this.load.image("notification", "gacha/notification.png");
-
-        this.load.image('personajeTest', 'characters/char1.png');
-        this.load.image('leftButton', 'UI/izq.png');
-        this.load.image('rightButton', 'UI/der.png');
-
-
-        let capsuleVariants = 3;
-        this.capsules = [];
-        for (let i = 1; i <= capsuleVariants; i++) {
-            this.capsules.push(`capsule${i}`);
+        let variantAmount = 3;
+        this.capsuleVariants = [];
+        for (let i = 1; i <= variantAmount; i++) {
+            this.capsuleVariants.push(`capsule${i}`);
             this.load.image(`capsule${i}`, `gacha/capsule_${i}_bot.png`);
         }
-        this.load.image("capsuleTop", `gacha/capsule_top.png`);
-        
-        // this.load.image("capsuleBot", "gacha/capsule_bot.png");
-        // this.load.image("capsuleTop", "gacha/capsule_top.png");
-        this.load.image("flash", "gacha/effects.png");
+        this.load.image("capsuleTop", "gacha/capsule_top.png");
+
+        this.load.image("coins", "UI/coin.png");
+        this.load.image("diamond", "UI/diamond.png");
+
+        this.load.image('personajeTest', 'characters/char1.png');
+        this.load.image('leftButton', 'UI/left.png');
+        this.load.image('rightButton', 'UI/right.png');
+
 
     }
 
@@ -72,7 +78,7 @@ export default class PreloaderScene extends BaseScene {
         super.create(params);
 
         this.sceneManager.init(this);
-        this.gameManager.init(this.cosmetics, this.capsules);
+        this.gameManager.init(this.cosmeticsByType, this.cosmeticsInfo, this.capsuleVariants);
         this.gameManager.goToMainMenu();
     }
 

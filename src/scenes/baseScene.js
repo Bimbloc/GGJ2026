@@ -22,7 +22,7 @@ export default class BaseScene extends Phaser.Scene {
         this.CANVAS_HEIGHT = this.sys.game.canvas.height;
 
         this.BASE_TEXT_CONFIG = {
-            fontSize: 70,
+            fontSize: 50,
             fill: "#000000",
             fontStyle: "bold",
             fontFamily: "Pacifico-Regular"

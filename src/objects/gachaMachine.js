@@ -1,6 +1,7 @@
 import TweenQueue from "../utils/tweenQueue.js";
 import GachaItem from "./gachaItem.js";
 import Grid from "../UI/grid.js";
+import EventNames from "../utils/eventNames.js";
 
 export default class GachaMachine extends Phaser.GameObjects.Container {
     constructor(scene, x = 0, y = 0, multiPullAmount) {
@@ -23,7 +24,6 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
         this.add(this.handle);
 
         // Capsula separada en parte superior e inferior
-        this.CAPSULE_VARIANTS = scene.gameManager.allCapsules;
         this.CAPSULE_INIT_X = 50;
         this.CAPSULE_INIT_Y = 70;
         this.capsule = scene.add.container(0, 0);
@@ -81,30 +81,23 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
 
         this.tweenQueue = new TweenQueue(scene.tweens, scene.dispatcher);
         this.tweenQueue.onComplete(() => {
-            this.scene.dispatcher.dispatch("pullAnimationEnded");
+            this.scene.dispatcher.dispatch(EventNames.pullAnimationEnd);
         });
 
-        this.resetElements();
+        this.resetElements(null);
     }
 
-    resetElements() {
-        let duration = this.resultBg.visible ? 700 : 0;
+    resetElements(duration = 700) {
+        let anim = {};
         
-        // Oculta los resultados anteriores (por si acaso)
-        let anim = this.scene.tweens.add({
-            targets: [this.resultBg, this.singlePullItem, this.multiPullGrid],
-            alpha: { from: 1, to: 0 },
-            duration: duration,
-            repeat: 0,
-        });
-        anim.on("complete", () => {
+        let onComplete = () => {
             // Se unen las 2 partes de la capsula
             this.capsuleBot.y = 0;
             this.capsuleTop.y = 0;
 
             // Se recoloca la capsula y se asigna a la parte inferior una textura aleatoria
             this.capsule.setPosition(this.CAPSULE_INIT_X, this.CAPSULE_INIT_Y).setScale(this.MACHINE_SCALE).setVisible(true);
-            this.capsuleBot.setTexture(this.CAPSULE_VARIANTS[Math.floor(Math.random() * this.CAPSULE_VARIANTS.length)]);
+            this.capsuleBot.setTexture(this.scene.gameManager.getRandomCapsule());
 
             // Oculta el fondo y los resultados de las tiradas y reinicia sus opacidades
             this.resultBg.setVisible(false).setAlpha(1);
@@ -123,12 +116,35 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
             this.bringToTop(this.resultBg);
             this.bringToTop(this.singlePullItem);
             this.bringToTop(this.multiPullGrid);
-        });
+        };
+        
+        if (duration == null) {
+            anim = this.scene.tweens.add({
+                targets: [],
+                duration: 0,
+                repeat: 0,
+            });
+            onComplete();
+        }
+        else {
+            duration = this.resultBg.visible ? 700 : 0;
+            anim = this.scene.tweens.add({
+                targets: [this.resultBg, this.singlePullItem, this.multiPullGrid],
+                alpha: { from: 1, to: 0 },
+                duration: duration,
+                repeat: 0,
+            });
+            anim.on("complete", () => {
+                onComplete();
+            });
+        }
         return anim;
     }
 
     playPullAnimation(results = []) {
-        this.resetElements().on("complete", () => {
+        this.scene.dispatcher.dispatch(EventNames.pullAnimationStart);
+        
+        this.resetElements().on("complete", () => {           
             this.spinHandle();
             this.fallAndBounce();
             this.growCapsule();
@@ -259,7 +275,7 @@ export default class GachaMachine extends Phaser.GameObjects.Container {
             };
         }, 500);
 
-        this.scene.dispatcher.addOnce("pullAnimationEnded", this, () => {
+        this.scene.dispatcher.addOnce(EventNames.pullAnimationEnd, this, () => {
             if (rewards.length == 1) {
                 this.singlePullItem.setVisible(true);
                 this.bringToTop(this.singlePullItem);

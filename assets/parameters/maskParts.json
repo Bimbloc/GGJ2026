@@ -1,0 +1,43 @@
+[
+    [],
+    [],
+    [
+        "eyes_nat_1",
+        "head_nat_1",
+        "mouth_nat_1",
+        "nose_nat_1",
+
+        "eyes_funny_1",
+        "head_funny_1",
+        "mouth_funny_1",
+        "nose_funny_1"
+    ],
+    [
+        "eyes_safe_1",
+        "head_safe_1",
+        "mouth_safe_1",
+        "nose_safe_1",
+
+        "eyes_edgy_1",
+        "head_edgy_1",
+        "mouth_edgy_1",
+        "nose_edgy_1"
+    ],
+    [
+        "eyes_ms_1",
+        "head_ms_1",
+        "mouth_ms_1",
+        "nose_ms_1",
+
+        "eyes_fancy_1",
+        "head_fancy_1",
+        "mouth_fancy_1",
+        "nose_fancy_1"
+    ],
+    [
+        "eyes_girly_1",
+        "head_girly_1",
+        "mouth_girly_1",
+        "nose_girly_1"
+    ]
+]

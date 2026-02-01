@@ -1,79 +1,89 @@
-import GameManager from "../managers/gameManager.js";
 import ImageTextButton from "../UI/imageTextButton.js";
+import { growAnimation } from "../utils/graphics.js";
 
-export default class PartSelector extends Phaser.GameObjects.GameObject {
+export default class PartSelector extends Phaser.GameObjects.Container {
     get baseSpeed() { return 5; }
     get maxMove() { return 150; }
 
-    constructor(scene, x, y, part, buttonOffset) {
-        super(scene, 'part_selector');
-        this.x = x;
-        this.y = y;
-        this.moving = false;
+    constructor(scene, x, y, category, buttonOffsetY) {
+        super(scene, x, y);
         scene.add.existing(this);
+        
+        this.scene = scene;
 
-        this.buttonLeft = new ImageTextButton(scene, x - 200, y + buttonOffset, '', null, () => {
-            this.moveLeft();
-        }, '', 'leftButton', 0.5, 0.5, 0.1, 0.1);
-        this.buttonRight = new ImageTextButton(scene, x + 200, y + buttonOffset, '', null, () => {
-            this.moveRight();
-        }, '', 'rightButton', 0.5, 0.5, 0.1, 0.1);
+        const BUTTON_OFFSET_X = 200;
+        const BUTTON_SCALE = 0.28;
 
-        const gm = GameManager.getInstance();
+        this.buttonLeft = new ImageTextButton(scene, -BUTTON_OFFSET_X, buttonOffsetY, "", null, scene.add.image(0, 0, "leftButton").setScale(BUTTON_SCALE));
+        this.add(this.buttonLeft);
+        growAnimation(this.buttonLeft, this.buttonLeft, () => {
+            this.animate(true);
+        }, false, false, 1.1, true);
+        
+        this.buttonRight = new ImageTextButton(scene, BUTTON_OFFSET_X, buttonOffsetY, "", null, scene.add.image(0, 0, "rightButton").setScale(BUTTON_SCALE));
+        this.add(this.buttonRight);
+        growAnimation(this.buttonRight, this.buttonRight, () => {
+            this.animate(false);
+        }, false, false, 1.1, true);
 
-        // Imagen
-        const cosmetics = gm.blackboard.get("cosmetics").get(part);
-        this.images = Array.from(cosmetics);
-        this.imageIndex = 0;
-        this.part = part;
-        this.image = scene.add.image(x, y, this.images[this.imageIndex]);
-        this.newImage = scene.add.image(x, y);
-        this.newImage.setVisible(false);
+
+        this.index = 0;
+        this.category = category;
+
+        this.itemId = scene.gameManager.getItemByIndex(category, this.index);
+        this.image = scene.add.image(0, 0, this.itemId);
+        this.add(this.image);
+        
+        this.nextImage = scene.add.image(0, 0, "");
+        this.add(this.nextImage);
+        this.nextImage.setVisible(false);
     }
 
-    preUpdate(t, dt) {
-        if(this.moving) {
-            this.image.x += this.speed * dt;
-            this.newImage.x += this.speed * dt;
-            if(Math.abs(this.image.x - this.x) >= this.maxMove) {
-                const temp = this.image;
-                this.image = this.newImage;
-                this.newImage = temp;
-                this.image.x = this.x;
-                this.moving = false;
-                this.newImage.setVisible(false);
-            }
-        }
-    }
+    animate(toPrev = false) {
+        const DURATION = 100;
+        const INIT_X = 200;
 
-    moveLeft() {
-        if(this.moving) return;
-        this.moving = true;
-        this.speed = -this.baseSpeed;
-        this.imageIndex--;
-        if(this.imageIndex < 0) {
-            this.imageIndex += this.images.length;
-        }
-        this.newImage.setTexture(this.images[this.imageIndex]);
-        this.newImage.x = this.x + this.maxMove;
-        this.newImage.setVisible(true);
-    }
+        this.index += toPrev ? -1 : 1;
+        this.index %= this.scene.gameManager.blackboard.get("unlockedCosmetics").get(this.category).size; 
+        this.itemId = this.scene.gameManager.getItemByIndex(this.category, this.index);
+        this.nextImage.setTexture(this.itemId);
 
-    moveRight() {
-        if(this.moving) return;
-        this.moving = true;
-        this.speed = this.baseSpeed;
-        this.imageIndex++;
-        if(this.imageIndex >= this.images.length) {
-            this.imageIndex -= this.images.length;
-        }
-        this.newImage.x = this.x - this.maxMove;
-        this.newImage.setTexture(this.images[this.imageIndex]);
-        this.newImage.setVisible(true);
-    }
+        this.buttonLeft.disableInteractive();
+        this.buttonRight.disableInteractive();
 
-    getSelectedPart() {
-        return this.images[this.imageIndex];
-    }
+        this.nextImage.setAlpha(0);
+        this.nextImage.setVisible(true);
 
+        let anim = this.scene.tweens.add({
+            targets: this.nextImage,
+            x: { from: toPrev ? INIT_X : -INIT_X, to: 0 },
+            alpha: { from: 0, to: 1 },
+            duration: DURATION,
+            repeat: 0,
+        });
+
+        const CURR_IMG_END_X = toPrev ? -INIT_X : INIT_X;
+        this.scene.tweens.add({
+            targets: this.image,
+            x: { from: 0, to: CURR_IMG_END_X },
+            alpha: { from: 1, to: 0 },
+            duration: DURATION,
+            repeat: 0,
+        });
+
+        anim.on("complete", () => {
+            setTimeout(() => {
+                this.image.x = 0;
+                this.image.setAlpha(1);
+                this.image.setTexture(this.itemId);
+                this.image.setVisible(true);
+
+                this.nextImage.setAlpha(0);
+                this.nextImage.setVisible(false);
+
+                this.scene.setInteractive(this.buttonLeft);
+                this.scene.setInteractive(this.buttonRight);
+            }, 100);
+        });
+    }
 }

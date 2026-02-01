@@ -2,7 +2,9 @@ import BaseShop from "./baseShop.js";
 import { growAnimation } from "../utils/graphics.js";
 import GachaMachine from "../objects/gachaMachine.js";
 import ImageTextButton from "../UI/imageTextButton.js";
-import RectTextButton from "../UI/rectTextButton.js";
+import AnimatedContainer from "../UI/animatedContainer.js";
+import TextArea from "../UI/textArea.js";
+import EventNames from "../utils/eventNames.js";
 
 export default class Gacha extends BaseShop {
     constructor() {
@@ -12,11 +14,16 @@ export default class Gacha extends BaseShop {
     create() {
         super.create();
 
-
         this.MULTI_PULL_AMOUNT = 10;
+        this.PULL_COST_COINS = 100;
+
         this.REWARDS_MIN_STARS = 3;
-        this.REWARDS_MAX_STARS = 5;
         this.ENSURED_REWARD_STARS = 4;
+        this.REWARDS_MAX_STARS = 5;
+
+        this.THREE_STAR_PERCENTAGE = 80;
+        this.FOUR_STAR_PERCENTAGE = 15;
+        this.FIVE_STAR_PERCENTAGE = 5;
 
         const END_OFFSET = 150;
         this.GACHA_INIT_X = this.CANVAS_WIDTH / 2;
@@ -30,9 +37,7 @@ export default class Gacha extends BaseShop {
 
         this.createPullButtons();
 
-        // TODO: Crear indicadores con la cantidad de "monedas", crear avisos de confirmacion y de conversion entre monedas 
-
-        this.shopButon = new ImageTextButton(this, 0, 0, "", {}, () => { }, "", "shopIcon").setScale(0.5);
+        this.shopButon = new ImageTextButton(this, 0, 0, "", {}, this.add.image(0, 0, "shopIcon").setScale(0.5));
         this.shopButon.x = this.shopButon.displayWidth / 2 + this.BUTTON_PADDING;
         this.shopButon.y = this.shopButon.displayHeight / 2 + this.BUTTON_PADDING;
         growAnimation(this.shopButon, this.shopButon, () => {
@@ -63,10 +68,12 @@ export default class Gacha extends BaseShop {
             });
         }, true, true, 1.1, true);
 
+        this.createWarnings();
+        this.warnings.setVisible(false);
 
         this.initialAnimation();
 
-        this.dispatcher.add("pullAnimationEnded", this, () => {
+        this.dispatcher.add(EventNames.pullAnimationEnd, this, () => {
             this.activateButtons(true);
         });
     }
@@ -79,30 +86,105 @@ export default class Gacha extends BaseShop {
         this.initialAnimation();
     }
 
-    // TODO: Ajustar estetica/reemplazar los botones con imagenes
     createPullButtons() {
-        const TEXT_CONFIG = {
-            fontSize: 70,
-            fill: "#000000",
-            fontStyle: "bold",
-            fontFamily: "Pacifico-Regular"
-        }
-        const OFFSET = 20;
-        const BUTTON_WIDTH = 300;
+        const BUTTON_WIDTH = 250;
         const BUTTON_HEIGHT = 100;
-        const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - OFFSET;
-        const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - OFFSET;
-        const BUTTON_COLOR = 0xffffff;
+        const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - this.BUTTON_PADDING;
+        const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - this.BUTTON_PADDING;
 
-        this.multiPullButton = new RectTextButton(this, BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, `x${this.MULTI_PULL_AMOUNT}`, TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
-        this.singlePullButton = new RectTextButton(this, this.multiPullButton.x - BUTTON_WIDTH - OFFSET, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "x1", TEXT_CONFIG, () => { }, "SinglePullButton", 0.5, 0.5, 25, BUTTON_COLOR);
+        this.multiPullButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, `x${this.MULTI_PULL_AMOUNT}`, this.BASE_TEXT_CONFIG,
+            this.add.nineslice(0, 0, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20), null, 0.5, 0.5, 0, 0, 150, 0, 0);
+        this.multiPullButton.add(this.add.image(-60, 0, "diamond").setScale(0.7));
 
-        growAnimation(this.singlePullButton, this.singlePullButton.list, () => {
+        this.singlePullButton = new ImageTextButton(this, this.multiPullButton.x - BUTTON_WIDTH - this.BUTTON_PADDING, BUTTON_Y, "x1", this.BASE_TEXT_CONFIG,
+            this.add.nineslice(0, 0, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20), null, 0.5, 0.5, 0, 0, 150, 0, 0);
+        this.singlePullButton.add(this.add.image(-40, 0, "diamond").setScale(0.7));
+
+        growAnimation(this.singlePullButton, this.singlePullButton, () => {
             this.pull(1);
         }, false, false, 1.05, true);
 
-        growAnimation(this.multiPullButton, this.multiPullButton.list, () => {
+        growAnimation(this.multiPullButton, this.multiPullButton, () => {
             this.pull(this.MULTI_PULL_AMOUNT);
+        }, false, false, 1.05, true);
+    }
+
+    createWarnings() {
+        const WARNING_WIDTH = 500;
+        const WARNING_HEIGHT = 300;
+        const WARNING_TEXT_PADDING = 30;
+        const WARNING_TEXT_HEIGHT = 200;
+
+        this.warningTextConfig = { ...this.BASE_TEXT_CONFIG };
+        this.warningTextConfig.wordWrap = {
+            width: WARNING_WIDTH - WARNING_TEXT_PADDING * 2,
+            useAdvancedWrap: true
+        }
+        this.warningTextConfig.align = "center";
+
+        this.warnings = new AnimatedContainer(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2);
+
+        let bgBlock = this.add.rectangle(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT, 0x0, 0);
+        this.warnings.add(bgBlock);
+        bgBlock.setInteractive();
+        bgBlock.on("pointerdown", () => {
+            this.warnings.activate(false);
+        });
+
+        this.warnings.add(this.add.nineslice(0, 0, "button", "", WARNING_WIDTH, WARNING_HEIGHT, 20, 20, 20, 20).setAlpha(0.9));
+
+
+        const WARNING_BUTTON_Y = 96;
+        const WARNING_BUTTON_WIDTH = 200;
+        const WARNING_BUTTON_HEIGHT = 70;
+
+        this.coinsWarning = this.add.container(0, 0);
+        this.warnings.add(this.coinsWarning);
+
+        let coinsWarningText = new TextArea(this, 0, -WARNING_HEIGHT / 2 + WARNING_TEXT_PADDING, WARNING_WIDTH - WARNING_TEXT_PADDING * 2, WARNING_TEXT_HEIGHT,
+            "You don't have enough coins", this.warningTextConfig).setOrigin(0.5, 0);
+        coinsWarningText.adjustFontSize();
+        this.coinsWarning.add(coinsWarningText);
+        
+        let okButton = new ImageTextButton(this, 0, WARNING_BUTTON_Y, "Ok", this.BASE_TEXT_CONFIG,
+            this.add.nineslice(0, 0, "button", "", WARNING_BUTTON_WIDTH, WARNING_BUTTON_HEIGHT, 20, 20, 20, 20));
+        this.coinsWarning.add(okButton);
+        growAnimation(okButton, okButton, () => {
+            this.warnings.activate(false);
+        }, false, false, 1.05, true);
+
+
+        this.diamondsWarning = this.add.container(0, 0);
+        this.warnings.add(this.diamondsWarning);
+
+        this.diamondsWarningText = new TextArea(this, 0, -WARNING_HEIGHT / 2 + WARNING_TEXT_PADDING, WARNING_WIDTH - WARNING_TEXT_PADDING * 2, WARNING_TEXT_HEIGHT, "", this.warningTextConfig).setOrigin(0.5, 0);
+        this.diamondsWarningText.adjustFontSize();
+        this.diamondsWarning.add(this.diamondsWarningText);
+
+        let yesButton = new ImageTextButton(this, -WARNING_WIDTH / 4.5, WARNING_BUTTON_Y, "Yes", this.BASE_TEXT_CONFIG,
+            this.add.nineslice(0, 0, "button", "", WARNING_BUTTON_WIDTH, WARNING_BUTTON_HEIGHT, 20, 20, 20, 20).setTint(0x90e99e));
+        this.diamondsWarning.add(yesButton);
+        growAnimation(yesButton, yesButton, () => {
+            this.warnings.activate(false, () => {
+                if (this.missingCoins > this.gameManager.blackboard.get("money")) {
+                    this.coinsWarning.setVisible(true);
+                    this.diamondsWarning.setVisible(false);
+                    this.warnings.activate(true);
+                }
+                else {
+                    this.gameManager.blackboard.set("money", this.gameManager.blackboard.get("money") - this.missingCoins);
+                    this.gameManager.blackboard.set("gachaCurrency", this.gameManager.blackboard.get("gachaCurrency") + this.missingDiamonds);
+                    this.dispatcher.dispatch(EventNames.currencyChanged);
+                }
+            });
+
+        }, false, false, 1.05, true);
+
+        let noButton = new ImageTextButton(this, WARNING_WIDTH / 4.5, WARNING_BUTTON_Y, "No", this.BASE_TEXT_CONFIG,
+            this.add.nineslice(0, 0, "button", "", WARNING_BUTTON_WIDTH, WARNING_BUTTON_HEIGHT, 20, 20, 20, 20).setTint(0xe99090));
+        this.diamondsWarning.add(noButton);
+        growAnimation(noButton, noButton, () => {
+            this.warnings.activate(false);
         }, false, false, 1.05, true);
     }
 
@@ -133,43 +215,71 @@ export default class Gacha extends BaseShop {
     }
 
     pull(amount) {
+        this.missingDiamonds = Math.abs(this.gameManager.blackboard.get("gachaCurrency") - amount);
+        this.missingCoins = this.missingDiamonds * this.PULL_COST_COINS;
 
-        let rewards = [];
-        let ensuredSpawned = false;
+        if (this.missingDiamonds > 0) {
+            let word = (amount == 1) ? "diamond" : "diamonds";
+            this.diamondsWarningText.setText(`You need ${this.missingDiamonds} more ${word}.\n Purchase for ${this.missingCoins} coins?`);
+            this.diamondsWarningText.setStyle(this.warningTextConfig);
+            this.diamondsWarningText.adjustFontSize();
 
-        for (let i = rewards.length; i < amount - 1; i++) {
-            let result = this.generateRandomPull();
-            rewards.push(result);
-            ensuredSpawned |= (result == this.ENSURED_REWARD_STARS);
-        }
-
-        if (amount === this.MULTI_PULL_AMOUNT && !ensuredSpawned) {
-            let result = this.generateRandomPull(true);
-            rewards.push(result);
+            this.coinsWarning.setVisible(false);
+            this.diamondsWarning.setVisible(true);
+            this.warnings.activate(true);
         }
         else {
-            rewards.push(this.generateRandomPull());
-        }
+            this.gameManager.blackboard.set("gachaCurrency", this.gameManager.blackboard.get("gachaCurrency") - amount);
+            this.dispatcher.dispatch(EventNames.currencyChanged);
 
-        this.activateButtons(false);
-        this.gachaMachine.playPullAnimation(rewards);
+            let rewards = [];
+            let ensuredSpawned = false;
+
+            for (let i = rewards.length; i < amount - 1; i++) {
+                let result = this.generateRandomPull();
+                rewards.push(result);
+                ensuredSpawned |= (result == this.ENSURED_REWARD_STARS);
+            }
+
+            if (amount === this.MULTI_PULL_AMOUNT && !ensuredSpawned) {
+                let result = this.generateRandomPull(true);
+                rewards.push(result);
+            }
+            else {
+                rewards.push(this.generateRandomPull());
+            }
+
+            this.activateButtons(false);
+            this.gachaMachine.playPullAnimation(rewards);
+
+        }
     }
 
     generateRandomPull(forceRarity = false) {
-        // TODO: Implementar probabilidades reales 
-        let rarity = forceRarity ? this.ENSURED_REWARD_STARS : Math.floor(Math.random() * ((this.REWARDS_MAX_STARS + 1) - this.REWARDS_MIN_STARS) + this.REWARDS_MIN_STARS);
-        let category = this.gameManager.allCategories[Math.floor(Math.random() * this.gameManager.allCategories.length)];
+        let rarity = this.ENSURED_REWARD_STARS;
 
-        // TODO: Generar un cosmetico de la rareza correspondiente y la categoria que haya salido
-        let texture = "head_funny_1"
+        if (!forceRarity) {
+            let rnd = Math.floor(Math.random() * 100);
 
+            if (rnd <= this.FIVE_STAR_PERCENTAGE) {
+                rarity = 5;
+            }
+            else if (rnd <= this.FIVE_STAR_PERCENTAGE + this.FOUR_STAR_PERCENTAGE) {
+                rarity = 4;
+            }
+            else  {
+                rarity = 3;
+            }
+            console.log(rnd)
+        }
+
+        let item = this.gameManager.getRandomItemByRarity(rarity);
         let result = {
-            category: category,
-            texture: texture,
             rarity: rarity,
-            isNew: !this.gameManager.checkItemUnlocked(category, texture)
+            texture: item,
+            isNew: !this.gameManager.checkItemUnlocked(item)
         };
-        this.gameManager.unlockItem(category, result.texture);
+        this.gameManager.unlockItem(result.texture);
         return result;
     }
 }

@@ -8,7 +8,7 @@ export default class BaseShop extends BaseScene {
 
     create(params) {
         super.create(params);
-
+        
         this.bg = this.add.image(0, 0, "shopBg").setOrigin(0, 0);
         this.bg.setScale(this.CANVAS_WIDTH / this.bg.displayWidth, this.CANVAS_HEIGHT / this.bg.displayHeight);
         this.bg.setDepth(-10);

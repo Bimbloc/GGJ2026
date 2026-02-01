@@ -1,17 +1,19 @@
-import GameManager from "../managers/gameManager.js";
-import EventDispatcher from "../managers/eventDispatcher.js";
+import EventNames from "../utils/eventNames.js";
 
 export default class Client extends Phaser.GameObjects.Container {
     constructor(scene, x, y, requestedMask = null) {
         super(scene, x, y);
         scene.add.existing(this);
+        
+        this.scene = scene;
+
         this.setDepth(-1);
 
         this.scene = scene;
-        this.gm = GameManager.getInstance();
-        this.dispatcher = EventDispatcher.getInstance();
+        this.gm = scene.gameManager;
+        this.dispatcher = scene.dispatcher;
 
-        this.partsOrder = Array.from(this.gm.blackboard.get("cosmetics").keys());
+        this.partsOrder = Array.from(this.gm.allCategories);
 
         this.requestedMask = requestedMask || this._generateRandomMask();
         this.served = false;
@@ -56,7 +58,7 @@ export default class Client extends Phaser.GameObjects.Container {
 
     _generateRandomMask() {
         let mask = {};
-        const cosmetics = this.gm.blackboard.get("cosmetics");
+        const cosmetics = this.gm.blackboard.get("unlockedCosmetics");
         this.partsOrder.forEach(part => {
             const set = Array.from(cosmetics.get(part));
             mask[part] = set[Math.floor(Math.random() * set.length)];
@@ -82,7 +84,7 @@ export default class Client extends Phaser.GameObjects.Container {
             alpha: 0,
             duration: 500,
             onComplete: () => {
-                this.dispatcher.dispatch("clientRemoved", { client: this, success });
+                this.dispatcher.dispatch(EventNames.clientRemoved, { client: this, success });
                 this.destroy(true);
             }
         });

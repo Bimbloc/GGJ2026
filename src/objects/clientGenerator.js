@@ -1,14 +1,14 @@
 import Client from "./client.js";
-import EventDispatcher from "../managers/eventDispatcher.js";
-import GameManager from "../managers/gameManager.js";
+import EventNames from "../utils/eventNames.js";
 
 export default class ClientGenerator {
     constructor(scene, x, y) {
         this.scene = scene;
+
         this.x = x;
         this.y = y;
-        this.gm = GameManager.getInstance();
-        this.dispatcher = EventDispatcher.getInstance();
+        this.gm = scene.gameManager;
+        this.dispatcher = scene.dispatcher;
 
         this.maxClients = 3;
         this.spawnInterval = 5000;
@@ -17,7 +17,7 @@ export default class ClientGenerator {
         this.activeClients = [];
         this.timer = null;
 
-        this.dispatcher.add("maskSubmitted", this, this._onMaskSubmitted.bind(this));
+        this.dispatcher.add(EventNames.maskSubmitted, this, this._onMaskSubmitted.bind(this));
     }
 
     start() {
@@ -49,7 +49,7 @@ export default class ClientGenerator {
         const cx = this.x + idx * this.spacingX;
         const client = new Client(this.scene, cx, this.y, requestedMask);
         this.activeClients.push(client);
-        this.dispatcher.dispatch("clientAdded", { client });
+        this.dispatcher.dispatch(EventNames.clientAdded, { client });
         return client;
     }
 
@@ -62,7 +62,7 @@ export default class ClientGenerator {
         const client = this.activeClients[0];
         const check = client.checkMask(mask);
         client.serve(check);
-        this.dispatcher.dispatch("clientServed", { client, success: check });
+        this.dispatcher.dispatch(EventNames.clientServed, { client, success: check });
         this.activeClients.shift();
         this._repositionClients();
         this.spawnIfNeeded();
