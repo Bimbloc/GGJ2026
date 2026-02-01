@@ -12,7 +12,7 @@ export default class PartSelector extends Phaser.GameObjects.Container {
         this.scene = scene;
 
         const BUTTON_OFFSET_X = 200;
-        const BUTTON_SCALE = 0.28;
+        const BUTTON_SCALE = 0.5;
 
         this.buttonLeft = new ImageTextButton(scene, -BUTTON_OFFSET_X, buttonOffsetY, "", null, scene.add.image(0, 0, "leftButton").setScale(BUTTON_SCALE));
         this.add(this.buttonLeft);

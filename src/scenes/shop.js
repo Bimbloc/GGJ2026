@@ -85,7 +85,7 @@ export default class Shop extends BaseShop {
             anim.on("complete", () => {
                 this.sceneManager.changeScene("Gacha", null, false, true);
             });
-        }, true, true, 1.1, true);
+        }, false, true, 1.1, true);
 
         this.props.x = this.MOVED_PROPS_X;
 

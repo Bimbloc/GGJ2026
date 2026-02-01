@@ -65,7 +65,7 @@ export default class Gacha extends BaseShop {
                     });
                 });
             });
-        }, true, true, 1.1, true);
+        }, false, true, 1.1, true);
 
         this.createWarnings();
         this.warnings.setVisible(false);

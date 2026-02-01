@@ -10,7 +10,7 @@ export default class ClientGenerator {
         this.gm = scene.gameManager;
         this.dispatcher = scene.dispatcher;
 
-        this.maxClients = 3;
+        this.maxClients = 1;
         this.spawnInterval = 5000;
         this.spacingX = -300;
 
