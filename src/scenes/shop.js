@@ -26,7 +26,7 @@ export default class Shop extends BaseShop {
         this.selectors.push(new PartSelector(this, 0, 0, 'nose', -75));
         this.selectors.push(new PartSelector(this, 0, 0, 'mouth', -25));
 
-        this.selectorsContainer.add(this.add.image(0, 0, "maskBase"))
+        this.selectorsContainer.add(this.add.image(0, 0, "maskBase").setDisplaySize(450, 580))
         this.selectors.forEach((selector) => {
             this.selectorsContainer.add(selector);
         });

@@ -47,7 +47,7 @@ export default class PreloaderScene extends BaseScene {
                 });
             });
         }
-        this.load.image("maskBase", "maskParts/base.png");
+        this.load.image("maskBase", "maskParts/balaclaba.png");
 
 
         this.load.image("shopIcon", "UI/goToScene_shop.png");
