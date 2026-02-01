@@ -24,7 +24,7 @@ export default class PreloaderScene extends BaseScene {
         this.load.image("shopBg", "bg/scenario.png");
         this.load.image("counter", "bg/counter.png");
         this.load.image("counterProps", "bg/counterProps.png");
-        this.load.image("gachaIcon", "UI/goToscene_gacha.png");
+        this.load.image("gachaIcon", "UI/goToScene_gacha.png");
        
         this.load.json("partsRarities", "parameters/maskParts.json");
         let parts = ["eyes", "head", "mouth", "nose"];
@@ -47,7 +47,7 @@ export default class PreloaderScene extends BaseScene {
         this.load.image("maskBase", "maskParts/base.png");
 
 
-        this.load.image("shopIcon", "UI/goToscene_shop.png");
+        this.load.image("shopIcon", "UI/goToScene_shop.png");
         this.load.image("gachaBg", "gacha/bg.png");
         this.load.image("gachaTop", "gacha/gacha.png");
         this.load.image("gachaBot", "gacha/gacha_hole.png");
