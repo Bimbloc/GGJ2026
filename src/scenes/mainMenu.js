@@ -8,7 +8,6 @@ export default class MainMenu extends BaseShop {
 
     create() {
         super.create();
-
         
         let sparkles = [];
         let min = -100;
