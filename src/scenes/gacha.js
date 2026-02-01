@@ -41,9 +41,8 @@ export default class Gacha extends BaseShop {
         this.shopButon.x = this.shopButon.displayWidth / 2 + this.BUTTON_PADDING;
         this.shopButon.y = this.shopButon.displayHeight / 2 + this.BUTTON_PADDING;
         growAnimation(this.shopButon, this.shopButon, () => {
+            this.activateButtons(false, 100);
             this.gachaMachine.resetElements().on("complete", () => {
-                this.activateButtons(false, 100);
-
                 let anim = this.tweens.add({
                     targets: this.gachaMachine,
                     duration: 300,
@@ -92,11 +91,14 @@ export default class Gacha extends BaseShop {
         const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - this.BUTTON_PADDING;
         const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - this.BUTTON_PADDING;
 
-        this.multiPullButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, `x${this.MULTI_PULL_AMOUNT}`, this.BASE_TEXT_CONFIG,
+        let pullTextConfig = { ...this.BASE_TEXT_CONFIG };
+        pullTextConfig.color = "#ffffff";
+
+        this.multiPullButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, `x${this.MULTI_PULL_AMOUNT}`, pullTextConfig,
             this.add.nineslice(0, 0, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20), null, 0.5, 0.5, 0, 0, 150, 0, 0);
         this.multiPullButton.add(this.add.image(-60, 0, "diamond").setScale(0.7));
 
-        this.singlePullButton = new ImageTextButton(this, this.multiPullButton.x - BUTTON_WIDTH - this.BUTTON_PADDING, BUTTON_Y, "x1", this.BASE_TEXT_CONFIG,
+        this.singlePullButton = new ImageTextButton(this, this.multiPullButton.x - BUTTON_WIDTH - this.BUTTON_PADDING, BUTTON_Y, "x1", pullTextConfig,
             this.add.nineslice(0, 0, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20), null, 0.5, 0.5, 0, 0, 150, 0, 0);
         this.singlePullButton.add(this.add.image(-40, 0, "diamond").setScale(0.7));
 

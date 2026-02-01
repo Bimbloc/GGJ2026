@@ -20,8 +20,11 @@ export default class PreloaderScene extends BaseScene {
 
         this.load.image("button", "UI/button9Slice.png");
         
-        this.load.image("test", "favicon.png");
+        this.load.image("logo", "logo.png");
+        this.load.image("sparkles", "sparkles.png");
+
         this.load.image("shopBg", "bg/scenario.png");
+        this.load.image("shopSign", "bg/sign.png");
         this.load.image("counter", "bg/counter.png");
         this.load.image("counterProps", "bg/counterProps.png");
         this.load.image("gachaIcon", "UI/goToScene_gacha.png");

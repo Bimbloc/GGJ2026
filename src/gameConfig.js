@@ -1,6 +1,9 @@
 import PreloaderScene from "./scenes/preloaderScene.js";
+
+import MainMenu from "./scenes/mainMenu.js";
 import Shop from "./scenes/shop.js";
 import Gacha from "./scenes/gacha.js";
+
 import CommonUI from "./scenes/commonUI.js";
 
 const MAX_W = 1200, MAX_H = 900, MIN_W = 400, MIN_H = 300;
@@ -14,6 +17,7 @@ const CONFIG = {
     // Nota: el orden de las escenas es relevante, y las que se encuentren antes en el array se renderizaran por debajo de las siguientes
     scene: [
         PreloaderScene,
+        MainMenu,
         Shop,
         Gacha,
 

@@ -58,9 +58,8 @@ export default class Client extends Phaser.GameObjects.Container {
 
     _generateRandomMask() {
         let mask = {};
-        const cosmetics = this.gm.blackboard.get("unlockedCosmetics");
         this.partsOrder.forEach(part => {
-            const set = Array.from(cosmetics.get(part));
+            const set = Array.from(this.gm.cosmeticsByType.get(part));
             mask[part] = set[Math.floor(Math.random() * set.length)];
         });
         return mask;

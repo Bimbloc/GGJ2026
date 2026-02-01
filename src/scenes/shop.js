@@ -4,10 +4,9 @@ import { growAnimation } from "../utils/graphics.js";
 import AnimatedContainer from "../UI/animatedContainer.js";
 import PartSelector from "../objects/partSelector.js";
 import ClientGenerator from "../objects/clientGenerator.js";
-import MaskAssembler from "../objects/maskAssembler.js";
 import EventNames from "../utils/eventNames.js";
 
-export default class MainShop extends BaseShop {
+export default class Shop extends BaseShop {
     constructor() {
         super("Shop");
     }
@@ -15,6 +14,42 @@ export default class MainShop extends BaseShop {
     create() {
         super.create();
 
+        this.started = false;
+
+        // TODO: Todo el flujo de juego xdn't
+        this.selectors = [];
+        this.selectorsContainer = new AnimatedContainer(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2);
+        this.selectorsContainer.setVisible(false);
+
+        this.selectors.push(new PartSelector(this, 0, 0, 'eyes', -125));
+        this.selectors.push(new PartSelector(this, 0, 0, 'head', -175));
+        this.selectors.push(new PartSelector(this, 0, 0, 'nose', -75));
+        this.selectors.push(new PartSelector(this, 0, 0, 'mouth', -25));
+
+        this.selectorsContainer.add(this.add.image(0, 0, "maskBase"))
+        this.selectors.forEach((selector) => {
+            this.selectorsContainer.add(selector);
+        });
+        
+        this.clientGenerator = new ClientGenerator(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2);
+
+        const BUTTON_WIDTH = 200;
+        const BUTTON_HEIGHT = 100;
+        const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - this.BUTTON_PADDING;
+        const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - this.BUTTON_PADDING;
+        
+        this.confirmButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, "Serve", this.BASE_TEXT_CONFIG,
+            this.add.nineslice(BUTTON_X, BUTTON_Y, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20));
+        growAnimation(this.confirmButton, this.confirmButton, () => {
+            let mask = {};
+            this.selectors.forEach(sel => {
+                mask[sel.part] = sel.itemId;
+            });
+            this.dispatcher.dispatch(EventNames.maskSubmitted, { mask });
+        }, true, false, 1.1);
+
+
+        
         this.INIT_PROPS_X = this.CANVAS_WIDTH * 0.55;
         this.MOVED_PROPS_X = -this.counter.displayWidth / 2;
         this.MOVING_DURATION = 500;
@@ -35,6 +70,15 @@ export default class MainShop extends BaseShop {
                 ease: "Sine.Out"
             });
 
+            this.tweens.add({
+                targets: this.clientGenerator.activeClients,
+                duration: this.MOVING_DURATION,
+                alpha: { from: 1, to: 0 },
+                repeat: 0,
+            });
+
+            this.selectorsContainer.activate(false);
+            
             this.gachaButton.disableInteractive();
             this.gachaButton.activate(false);
 
@@ -43,37 +87,12 @@ export default class MainShop extends BaseShop {
             });
         }, true, true, 1.1, true);
 
+        this.props.x = this.MOVED_PROPS_X;
 
-        // TODO: Todo el flujo de juego xdn't
-        const selectors = [];
-        let selectorsContainer = new AnimatedContainer(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2);
-        selectors.push(new PartSelector(this, 0, 0, 'eyes', -125));
-        selectors.push(new PartSelector(this, 0, 0, 'head', -175));
-        selectors.push(new PartSelector(this, 0, 0, 'nose', -75));
-        selectors.push(new PartSelector(this, 0, 0, 'mouth', -25));
+        this.gachaButton.setVisible(false);
+        this.gachaButton.activate(true);
 
-        selectorsContainer.add(this.add.image(0, 0, "maskBase"))
-        selectors.forEach((selector) => {
-            selectorsContainer.add(selector);
-        });
-
-        this.clientGenerator = new ClientGenerator(this, this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT / 2);
-        this.clientGenerator.start();
-
-        const BUTTON_WIDTH = 200;
-        const BUTTON_HEIGHT = 100;
-        const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - this.BUTTON_PADDING;
-        const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - this.BUTTON_PADDING;
-        
-        this.confirmButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, "Serve", this.BASE_TEXT_CONFIG,
-            this.add.nineslice(BUTTON_X, BUTTON_Y, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20));
-        growAnimation(this.confirmButton, this.confirmButton, () => {
-            let mask = {};
-            selectors.forEach(sel => {
-                mask[sel.part] = sel.itemId;
-            });
-            this.dispatcher.dispatch(EventNames.maskSubmitted, { mask });
-        }, true, false, 1.1);
+        this.onWake();
     }
 
     onWake(params) {
@@ -85,8 +104,22 @@ export default class MainShop extends BaseShop {
                 x: this.INIT_PROPS_X,
                 ease: "Sine.In"
             });
+            
+
+            this.tweens.add({
+                targets: this.clientGenerator.activeClients,
+                duration: this.MOVING_DURATION,
+                alpha: { from: 0, to: 1 },
+                repeat: 0,
+            });
 
             anim.on("complete", () => {
+                if (!this.started) {
+                    this.clientGenerator.start();
+                }
+
+                this.selectorsContainer.activate(true);
+
                 this.gachaButton.activate(true, () => {
                     this.setInteractive(this.gachaButton);
                 });

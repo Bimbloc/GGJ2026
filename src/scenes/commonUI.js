@@ -35,6 +35,12 @@ export default class CommonUI extends BaseScene {
         this.coins.textObj.setAreaSize(this.coins.textObj.maxWidth - diamondIcon.displayWidth - TEXT_PADDING, this.coins.textObj.maxHeight)
 
 
+        this.diamonds.setVisible(false);
+        this.diamonds.activate(true);
+
+        this.coins.setVisible(false);
+        this.coins.activate(true);
+
         // TODO: INDICADOR DE DEUDA
 
 
