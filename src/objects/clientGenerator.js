@@ -60,9 +60,9 @@ export default class ClientGenerator {
     tryServe(mask) {
         if (this.activeClients.length === 0) return;
         const client = this.activeClients[0];
-        const check = client.checkMask(mask);
-        client.serve(check);
-        this.dispatcher.dispatch(EventNames.clientServed, { client, success: check });
+        const num = client.countMaskMatches(mask);
+        client.serve(num===4);
+        this.dispatcher.dispatch(EventNames.clientServed, { client, success: num });
         this.activeClients.shift();
         this._repositionClients();
         this.spawnIfNeeded();

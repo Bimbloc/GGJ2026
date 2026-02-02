@@ -74,6 +74,9 @@ export default class PreloaderScene extends BaseScene {
         this.load.image('leftButton', 'UI/left.png');
         this.load.image('rightButton', 'UI/right.png');
 
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`char${i}`,`characters/char${i}.png`);
+        }
 
     }
 

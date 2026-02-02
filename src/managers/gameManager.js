@@ -38,9 +38,9 @@ export default class GameManager extends Singleton {
         }
 
         this.dispatcher.add(EventNames.clientServed, this, (param) => {
-            if(param.success) {
+            if(param.success>0) {
                 // TODO: Parametrizar
-                this.blackboard.set("money", this.blackboard.get("money") + 100);
+                this.blackboard.set("money", this.blackboard.get("money") + param.success * 25);
                 this.dispatcher.dispatch(EventNames.currencyChanged);
             }
         }, true);

@@ -17,8 +17,8 @@ export default class Client extends Phaser.GameObjects.Container {
 
         this.requestedMask = requestedMask || this._generateRandomMask();
         this.served = false;
-
-        this.avatar = scene.add.image(0, 0, 'personajeTest');
+        const index = Phaser.Math.Between(1, 7);
+        this.avatar = scene.add.image(0, 0, `char${index}`);
 
         this.add(this.avatar);
 
@@ -26,10 +26,6 @@ export default class Client extends Phaser.GameObjects.Container {
 
         this._createRequestThumbnails();
         this.add(this.reqContainer);
-
-        this.statusText = scene.add.text(0, -300, "waiting", { fontSize: 16, fill: "#000" }).setOrigin(0.5, 0);
-
-        this.add(this.statusText);
 
         this.setAlpha(0);
         scene.tweens.add({
@@ -74,16 +70,29 @@ export default class Client extends Phaser.GameObjects.Container {
         return true;
     }
 
+    countMaskMatches(submittedMask) {
+        let count = 0;
+
+        for (let part of this.partsOrder) {
+            if (
+                submittedMask[part] &&
+                submittedMask[part] === this.requestedMask[part]
+            ) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     serve(success = true) {
         this.served = true;
-        this.statusText.setText(success ? "happy" : "angry");
         this.scene.tweens.add({
             targets: this,
             x: this.x + (success ? 200 : -200),
             alpha: 0,
             duration: 500,
             onComplete: () => {
-                this.dispatcher.dispatch(EventNames.clientRemoved, { client: this, success });
                 this.destroy(true);
             }
         });
