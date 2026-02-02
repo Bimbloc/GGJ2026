@@ -34,8 +34,11 @@ export default class Gacha extends BaseShop {
         this.GACHA_MOVED_Y = -END_OFFSET;
         this.GACHA_MOVED_ROT = Math.PI * 2;
         this.gachaMachine = new GachaMachine(this, this.GACHA_INIT_X, this.GACHA_INIT_Y, this.MULTI_PULL_AMOUNT).setRotation(this.GACHA_INIT_ROT);
-
+        this.music = this.sound.add("gachapop");
+        this.music.setLoop(true);
+        this.music.play();
         this.createPullButtons();
+
 
         this.shopButon = new ImageTextButton(this, 0, 0, "", {}, this.add.image(0, 0, "shopIcon").setScale(0.5));
         this.shopButon.x = this.shopButon.displayWidth / 2 + this.BUTTON_PADDING;
@@ -50,8 +53,10 @@ export default class Gacha extends BaseShop {
                     rotation: this.GACHA_MOVED_ROT,
                     x: this.GACHA_MOVED_X,
                     y: this.GACHA_MOVED_Y,
+                    
                 });
-
+                this.music.stop();
+                
                 anim.on("complete", () => {
                     let sceneChanged = false;
                     this.cameras.main.shake(200, 0.02);
@@ -79,7 +84,7 @@ export default class Gacha extends BaseShop {
 
     onWake(params) {
         super.onWake(params);
-
+        this.music.play();
         this.gachaMachine.resetElements();
         this.gachaMachine.setPosition(this.GACHA_INIT_X, this.GACHA_INIT_Y).setRotation(this.GACHA_INIT_ROT);
         this.initialAnimation();
@@ -284,4 +289,5 @@ export default class Gacha extends BaseShop {
         this.gameManager.unlockItem(result.texture);
         return result;
     }
+
 }

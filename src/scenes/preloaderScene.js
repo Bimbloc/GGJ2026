@@ -28,6 +28,10 @@ export default class PreloaderScene extends BaseScene {
         this.load.image("counter", "bg/counter.png");
         this.load.image("counterProps", "bg/counterProps.png");
         this.load.image("gachaIcon", "UI/goToScene_gacha.png");
+        this.load.audio("girlypop", "sound/girlypop.mp3");
+        this.load.audio("gachapop", "sound/gachapop.mp3");
+        this.load.audio("sparkles", "sound/sparkles.mp3");
+        this.load.audio("swap", "sound/swap.mp3");
        
         this.load.json("partsRarities", "parameters/maskParts.json");
         let parts = ["eyes", "head", "mouth", "nose"];

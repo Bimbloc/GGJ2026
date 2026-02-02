@@ -12,18 +12,22 @@ export default class PartSelector extends Phaser.GameObjects.Container {
         this.scene = scene;
 
         const BUTTON_OFFSET_X = 200;
-        const BUTTON_SCALE = 0.5;
 
+        const BUTTON_SCALE = 0.6;
+
+        this.swapsound = this.scene.sound.add("swap");
         this.buttonLeft = new ImageTextButton(scene, -BUTTON_OFFSET_X, buttonOffsetY, "", null, scene.add.image(0, 0, "leftButton").setScale(BUTTON_SCALE));
         this.add(this.buttonLeft);
         growAnimation(this.buttonLeft, this.buttonLeft, () => {
             this.animate(true);
+            this.swapsound.play();
         }, false, false, 1.1, true);
         
         this.buttonRight = new ImageTextButton(scene, BUTTON_OFFSET_X, buttonOffsetY, "", null, scene.add.image(0, 0, "rightButton").setScale(BUTTON_SCALE));
         this.add(this.buttonRight);
         growAnimation(this.buttonRight, this.buttonRight, () => {
             this.animate(false);
+            this.swapsound.play();
         }, false, false, 1.1, true);
 
 

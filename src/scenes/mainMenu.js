@@ -30,9 +30,10 @@ export default class MainMenu extends BaseShop {
             repeat: 0,
             ease: "Sine.easeOut"
         });
-
+        this.sound.play("sparkles");
 
         anim.on("complete", () => {
+            
             let duration = 1000;
             this.tweenChain = this.tweens.chain({
                 targets: null,

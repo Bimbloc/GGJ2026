@@ -38,6 +38,9 @@ export default class Shop extends BaseShop {
         const BUTTON_X = this.CANVAS_WIDTH - BUTTON_WIDTH * 0.5 - this.BUTTON_PADDING;
         const BUTTON_Y = this.CANVAS_HEIGHT - BUTTON_HEIGHT * 0.5 - this.BUTTON_PADDING;
         
+        this.music = this.sound.add("girlypop");
+        this.music.setLoop(true);
+ 
         this.confirmButton = new ImageTextButton(this, BUTTON_X, BUTTON_Y, "Serve", this.BASE_TEXT_CONFIG,
             this.add.nineslice(BUTTON_X, BUTTON_Y, "button", "", BUTTON_WIDTH, BUTTON_HEIGHT, 20, 20, 20, 20));
         growAnimation(this.confirmButton, this.confirmButton, () => {
@@ -62,6 +65,7 @@ export default class Shop extends BaseShop {
         this.gachaButton.y = this.gachaButton.displayHeight / 2 + this.BUTTON_PADDING;
 
         growAnimation(this.gachaButton, this.gachaButton, () => {
+            this.music.stop();
             let anim = this.tweens.add({
                 targets: this.props,
                 duration: this.MOVING_DURATION,
@@ -105,7 +109,7 @@ export default class Shop extends BaseShop {
                 ease: "Sine.In"
             });
             
-
+            this.music.play()
             this.tweens.add({
                 targets: this.clientGenerator.activeClients,
                 duration: this.MOVING_DURATION,
